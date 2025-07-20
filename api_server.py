@@ -49,6 +49,7 @@ class APIHandler(BaseHTTPRequestHandler):
                 interpretations['interpretations'][feature_key] = {
                     'text': data.get('text', ''),
                     'starred': data.get('starred', False),
+                    'skipped': data.get('skipped', False),
                     'lastModified': datetime.now().isoformat()
                 }
                 

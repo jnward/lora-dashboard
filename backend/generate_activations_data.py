@@ -72,7 +72,7 @@ class TopKTracker:
         return [(act, rid, tid) for act, _, rid, tid in sorted(self.top_positive, key=lambda x: x[0], reverse=True)]
     
     def get_top_negative(self) -> List[Tuple[float, int, int]]:
-        return [(-act, rid, tid) for act, _, rid, tid in sorted(self.top_negative, key=lambda x: x[0])]
+        return [(-act, rid, tid) for act, _, rid, tid in sorted(self.top_negative, key=lambda x: x[0], reverse=True)]
     
     def compute_histogram(self) -> Dict[str, any]:
         """Compute histogram data for all activations"""

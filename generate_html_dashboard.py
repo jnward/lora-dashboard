@@ -139,9 +139,9 @@ def generate_statistics_section(layer_data, layer_idx):
     html = f'<div class="statistics-section" id="stats-{layer_idx}">'
     html += '<div class="statistics-header" onclick="toggleStatistics(' + str(layer_idx) + ')">'
     html += '<span class="statistics-title">Layer Statistics & Distributions</span>'
-    html += '<button class="collapse-button" id="collapse-btn-' + str(layer_idx) + '">▼</button>'
+    html += '<button class="collapse-button collapsed" id="collapse-btn-' + str(layer_idx) + '">▶</button>'
     html += '</div>'
-    html += '<div class="statistics-content" id="stats-content-' + str(layer_idx) + '">'
+    html += '<div class="statistics-content collapsed" id="stats-content-' + str(layer_idx) + '">'
     html += '<div class="statistics-grid">'
     
     # Cosine similarity matrix
@@ -171,10 +171,10 @@ def generate_statistics_section(layer_data, layer_idx):
     return html
 
 
-def generate_token_html(tokens, activations, target_idx, context_window=10):
+def generate_token_html(tokens, activations, target_idx):
     """Generate HTML for token context visualization"""
-    context_start = max(0, target_idx - context_window)
-    context_end = min(len(tokens), target_idx + context_window + 1)
+    context_start = 0
+    context_end = len(tokens)
     
     html_parts = []
     for i in range(context_start, context_end):
@@ -219,6 +219,9 @@ def generate_dashboard_html(data_path, output_path):
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>LoRA Probe Activations Dashboard</title>
     <style>
         /* Reset and base styles */
@@ -232,7 +235,7 @@ def generate_dashboard_html(data_path, output_path):
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f5f5f5;
             color: #333;
-            line-height: 1.6;
+            line-height: 1.4;
             height: 100vh;
             overflow: hidden;
             margin: 0;
@@ -242,72 +245,43 @@ def generate_dashboard_html(data_path, output_path):
             width: 100%;
             height: 100vh;
             margin: 0;
-            padding: 15px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
         }
         
-        /* Header styles */
-        h1 {
-            text-align: center;
-            color: #1a1a1a;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-        
-        .subtitle {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-        }
-        
-        /* Metadata bar */
-        .metadata {
+        /* Compact control bar */
+        .control-bar {
             background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .metadata-item {
-            font-size: 0.9em;
-            color: #666;
-        }
-        
-        .metadata-item strong {
-            color: #333;
-        }
-        
-        /* Layer navigation */
-        .layer-nav {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            text-align: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
-        
-        .layer-nav label {
-            font-weight: bold;
-        }
-        
-        .layer-nav select {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
+            padding: 6px 10px;
             border-radius: 4px;
-            font-size: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            flex-wrap: nowrap;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .dashboard-title {
+            font-weight: bold;
+            color: #1a1a1a;
+            font-size: 0.9em;
+        }
+        
+        .layer-controls select {
+            padding: 3px 6px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 13px;
             cursor: pointer;
         }
         
@@ -315,12 +289,45 @@ def generate_dashboard_html(data_path, output_path):
             background: #3498db;
             color: white;
             border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            padding: 4px 12px;
+            border-radius: 3px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             transition: background-color 0.2s;
+        }
+        
+        .nav-button.compact {
+            padding: 3px 8px;
+            font-size: 12px;
+        }
+        
+        .info-item {
+            font-size: 0.75em;
+            color: #666;
+        }
+        
+        .info-separator {
+            color: #ddd;
+            font-size: 0.75em;
+        }
+        
+        .legend {
+            font-size: 0.7em;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            color: #666;
+        }
+        
+        .color-box.small {
+            width: 10px;
+            height: 10px;
+            display: inline-block;
+            border: 1px solid #ddd;
         }
         
         .nav-button:hover:not(:disabled) {
@@ -353,16 +360,14 @@ def generate_dashboard_html(data_path, output_path):
         }
         
         .layer-header {
-            font-size: 1.8em;
-            margin-bottom: 20px;
-            color: #2c3e50;
+            display: none;
         }
         
         /* Projections grid */
         .projections-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 8px;
             flex: 1;
             overflow: hidden;
             min-height: 0;
@@ -371,14 +376,14 @@ def generate_dashboard_html(data_path, output_path):
         .projection-column {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 8px;
             min-height: 0;
         }
         
         .projection-card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             overflow: hidden;
             flex: 1;
             display: flex;
@@ -388,10 +393,10 @@ def generate_dashboard_html(data_path, output_path):
         
         .projection-header {
             color: white;
-            padding: 12px 20px;
+            padding: 6px 10px;
             font-weight: bold;
             text-align: center;
-            font-size: 1.0em;
+            font-size: 0.85em;
         }
         
         .projection-header.positive {
@@ -403,7 +408,7 @@ def generate_dashboard_html(data_path, output_path):
         }
         
         .projection-content {
-            padding: 15px;
+            padding: 8px;
             overflow-y: auto;
             flex: 1;
             min-height: 0;
@@ -411,32 +416,32 @@ def generate_dashboard_html(data_path, output_path):
         
         /* Activation sections */
         .activation-section {
-            margin-bottom: 25px;
+            margin-bottom: 15px;
         }
         
         .activation-title {
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 10px;
-            font-size: 0.95em;
+            margin-bottom: 6px;
+            font-size: 0.85em;
         }
         
         /* Token visualization */
         .token-example {
             background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 8px;
+            padding: 6px 8px;
+            border-radius: 3px;
+            margin-bottom: 6px;
             font-family: 'Monaco', 'Consolas', monospace;
-            font-size: 0.85em;
-            line-height: 1.6;
+            font-size: 0.75em;
+            line-height: 1.4;
             overflow-x: auto;
         }
         
         .example-info {
-            font-size: 0.8em;
+            font-size: 0.7em;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         
         /* Responsive */
@@ -463,28 +468,12 @@ def generate_dashboard_html(data_path, output_path):
             color: #666;
         }
         
-        /* Color indicators */
-        .color-legend {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 0.9em;
-            color: #666;
-        }
-        
-        .color-box {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin: 0 5px;
-            vertical-align: middle;
-            border: 1px solid #ddd;
-        }
         
         /* Interpretation section styles */
         .interpretation-section {
             background: #f0f4f8;
             border-top: 1px solid #ddd;
-            padding: 15px;
+            padding: 8px;
             margin-top: auto;
         }
         
@@ -492,42 +481,42 @@ def generate_dashboard_html(data_path, output_path):
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
         
         .interpretation-title {
             font-weight: bold;
             color: #2c3e50;
-            font-size: 0.9em;
+            font-size: 0.75em;
         }
         
         .star-container {
             display: flex;
             align-items: center;
-            gap: 5px;
+            gap: 3px;
         }
         
         .star-checkbox {
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             cursor: pointer;
         }
         
         .star-label {
             color: #666;
-            font-size: 0.85em;
+            font-size: 0.7em;
             cursor: pointer;
             user-select: none;
         }
         
         .interpretation-textarea {
             width: 100%;
-            min-height: 80px;
-            padding: 8px;
+            min-height: 50px;
+            padding: 4px 6px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 3px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            font-size: 0.85em;
+            font-size: 0.75em;
             resize: vertical;
             background: white;
         }
@@ -539,11 +528,11 @@ def generate_dashboard_html(data_path, output_path):
         }
         
         .save-status {
-            margin-top: 8px;
-            font-size: 0.8em;
+            margin-top: 4px;
+            font-size: 0.65em;
             color: #666;
             text-align: right;
-            min-height: 20px;
+            min-height: 16px;
         }
         
         .save-status.saving {
@@ -624,9 +613,9 @@ def generate_dashboard_html(data_path, output_path):
         /* Statistics section styles */
         .statistics-section {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 8px;
             overflow: hidden;
         }
         
@@ -634,7 +623,7 @@ def generate_dashboard_html(data_path, output_path):
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 20px;
+            padding: 6px 10px;
             background: #f8f9fa;
             cursor: pointer;
             user-select: none;
@@ -647,13 +636,13 @@ def generate_dashboard_html(data_path, output_path):
         .statistics-title {
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.1em;
+            font-size: 0.85em;
         }
         
         .collapse-button {
             background: none;
             border: none;
-            font-size: 1.2em;
+            font-size: 0.9em;
             color: #6c757d;
             cursor: pointer;
             transition: transform 0.3s;
@@ -765,40 +754,32 @@ def generate_dashboard_html(data_path, output_path):
 </head>
 <body>
     <div class="container">
-        <h1>LoRA Probe Activations Dashboard</h1>
-        <p class="subtitle">All projections show: input activations ⋅ A matrix (rank-1 LoRA neuron activations)</p>
-        
-        <div class="color-legend">
-            <span class="color-box" style="background-color: rgba(255, 0, 0, 0.3);"></span> Positive activations
-            <span class="color-box" style="background-color: rgba(0, 0, 255, 0.3);"></span> Negative activations
-            <span class="color-box" style="border: 2px solid red;"></span> Target token
-        </div>
-        
-        <div class="metadata">
-            <div class="metadata-item">
-                <strong>Model:</strong> {model_name}
+        <div class="control-bar">
+            <div class="control-group">
+                <span class="dashboard-title">LoRA Activations</span>
             </div>
-            <div class="metadata-item">
-                <strong>LoRA Layers:</strong> {num_lora_layers} layers ({layer_range})
+            
+            <div class="control-group layer-controls">
+                <button class="nav-button compact" id="prev-layer" onclick="navigateLayer(-1)">◀</button>
+                <select id="layer-select" onchange="showLayer(this.value)">
+                    {layer_options}
+                </select>
+                <button class="nav-button compact" id="next-layer" onclick="navigateLayer(1)">▶</button>
             </div>
-            <div class="metadata-item">
-                <strong>Examples:</strong> {num_examples}
+            
+            <div class="control-group">
+                <span class="info-item">{model_name}</span>
+                <span class="info-separator">|</span>
+                <span class="info-item">{num_examples} examples</span>
+                <span class="info-separator">|</span>
+                <span class="info-item">Top-{top_k}</span>
             </div>
-            <div class="metadata-item">
-                <strong>Top-K:</strong> {top_k}
+            
+            <div class="control-group legend">
+                <span class="legend-item"><span class="color-box small" style="background: rgba(255, 0, 0, 0.3);"></span>Positive</span>
+                <span class="legend-item"><span class="color-box small" style="background: rgba(0, 0, 255, 0.3);"></span>Negative</span>
+                <span class="legend-item"><span class="color-box small" style="border: 2px solid red;"></span>Target</span>
             </div>
-            <div class="metadata-item">
-                <strong>Generated:</strong> {generated_time}
-            </div>
-        </div>
-        
-        <div class="layer-nav">
-            <button class="nav-button" id="prev-layer" onclick="navigateLayer(-1)">← Previous</button>
-            <label for="layer-select">Select Layer:</label>
-            <select id="layer-select" onchange="showLayer(this.value)">
-                {layer_options}
-            </select>
-            <button class="nav-button" id="next-layer" onclick="navigateLayer(1)">Next →</button>
         </div>
         
         <div id="layers-container" style="flex: 1; min-height: 0; overflow: hidden;">
