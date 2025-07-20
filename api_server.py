@@ -29,6 +29,47 @@ class APIHandler(BaseHTTPRequestHandler):
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps(interpretations).encode())
+        elif self.path.startswith('/api/rollout_context/'):
+            # Extract rollout_idx from path
+            try:
+                rollout_idx = self.path.split('/')[-1]
+                
+                # Load rollout contexts
+                contexts_path = 'backend/rollout_contexts.json'
+                if not os.path.exists(contexts_path):
+                    contexts_path = 'rollout_contexts.json'
+                
+                tokens_path = 'backend/rollout_tokens.json'
+                if not os.path.exists(tokens_path):
+                    tokens_path = 'rollout_tokens.json'
+                
+                if os.path.exists(contexts_path):
+                    with open(contexts_path, 'r') as f:
+                        contexts = json.load(f)
+                    
+                    # Load tokens if available
+                    tokens = {}
+                    if os.path.exists(tokens_path):
+                        with open(tokens_path, 'r') as f:
+                            tokens = json.load(f)
+                    
+                    if rollout_idx in contexts:
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.send_header('Access-Control-Allow-Origin', '*')
+                        self.end_headers()
+                        response = {
+                            'rollout_idx': rollout_idx,
+                            'text': contexts[rollout_idx],
+                            'tokens': tokens.get(rollout_idx, [])
+                        }
+                        self.wfile.write(json.dumps(response).encode())
+                    else:
+                        self.send_error(404, f"Rollout {rollout_idx} not found")
+                else:
+                    self.send_error(404, "Rollout contexts file not found")
+            except Exception as e:
+                self.send_error(500, str(e))
         else:
             self.send_error(404)
     

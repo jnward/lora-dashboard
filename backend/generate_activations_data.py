@@ -364,11 +364,30 @@ def main(args):
     
     # Store rollout data for context extraction
     rollout_storage = {}
+    rollout_contexts = {}  # Store full text for each rollout
+    rollout_tokens = {}  # Store token information for each rollout
     
     # Process rollouts
     print(f"Processing {num_examples} rollouts...")
     for rollout_idx in tqdm(range(num_examples), desc="Processing rollouts"):
         rollout = dataset[rollout_idx]
+        
+        # Store the full formatted text
+        question = rollout['question']
+        thinking_trajectory = rollout.get('deepseek_thinking_trajectory', '')
+        attempt = rollout.get('deepseek_attempt', '')
+        
+        if thinking_trajectory and attempt:
+            system_prompt = "You are a helpful mathematics assistant."
+            full_text = (
+                f"<|im_start|>system\n{system_prompt}\n"
+                f"<|im_start|>user\n{question}\n"
+                f"<|im_start|>assistant\n"
+                f"<|im_start|>think\n{thinking_trajectory}\n"
+                f"<|im_start|>answer\n{attempt}<|im_end|>"
+            )
+            rollout_contexts[rollout_idx] = full_text
+        
         result = process_rollout(
             model, tokenizer, rollout, rollout_idx, probe_directions,
             top_k_trackers, activation_stats, args.context_window, lora_layers
@@ -376,6 +395,8 @@ def main(args):
         
         if result:
             rollout_storage[rollout_idx] = result
+            # Store token information for highlighting
+            rollout_tokens[rollout_idx] = result['tokens']
         
         # Periodic garbage collection
         if rollout_idx % 10 == 0:
@@ -463,6 +484,20 @@ def main(args):
     
     print(f"Done! Data saved to {output_path}")
     print(f"File size: {os.path.getsize(output_path) / 1024 / 1024:.2f} MB")
+    
+    # Save rollout contexts separately
+    contexts_path = os.path.join(os.path.dirname(output_path), "rollout_contexts.json")
+    print(f"\nSaving rollout contexts to {contexts_path}...")
+    with open(contexts_path, 'w') as f:
+        json.dump(rollout_contexts, f, indent=2)
+    print(f"Contexts file size: {os.path.getsize(contexts_path) / 1024 / 1024:.2f} MB")
+    
+    # Save rollout tokens separately for highlighting
+    tokens_path = os.path.join(os.path.dirname(output_path), "rollout_tokens.json")
+    print(f"\nSaving rollout tokens to {tokens_path}...")
+    with open(tokens_path, 'w') as f:
+        json.dump(rollout_tokens, f, indent=2)
+    print(f"Tokens file size: {os.path.getsize(tokens_path) / 1024 / 1024:.2f} MB")
     
     # Copy to frontend if not disabled
     if args.copy_to_frontend:

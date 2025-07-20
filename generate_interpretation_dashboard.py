@@ -105,13 +105,43 @@ def generate_dashboard_html(data_path, output_path):
             background-color: #f5f5f5;
             color: #333;
             line-height: 1.6;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .main-layout {
+            display: flex;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        .left-panel {
+            flex: 0 0 60%;
             padding: 20px;
+            overflow-y: auto;
+            padding-bottom: 100px; /* Space for fixed controls */
+        }
+        
+        .right-panel {
+            flex: 0 0 40%;
+            background: white;
+            border-left: 1px solid #ddd;
+            position: relative;
+            display: none; /* Hidden initially, will be changed to flex when shown */
+            flex-direction: column;
+        }
+        
+        .context-wrapper {
+            position: relative;
+            flex: 1;
+            display: flex;
+            overflow: hidden;
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
-            padding-bottom: 100px; /* Space for fixed controls */
         }
         
         /* Progress section */
@@ -197,6 +227,18 @@ def generate_dashboard_html(data_path, output_path):
             font-size: 0.9em;
             line-height: 1.8;
             overflow-x: auto;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .example-item:hover {
+            background: #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .example-item.selected {
+            background: #d4edda;
+            border: 2px solid #28a745;
         }
         
         .example-info {
@@ -365,28 +407,118 @@ def generate_dashboard_html(data_path, output_path):
         .save-status.error {
             color: #e74c3c;
         }
+        
+        /* Context panel styles */
+        .context-header {
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            z-index: 100;
+        }
+        
+        .context-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .context-info {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .context-content {
+            flex: 1;
+            padding: 20px;
+            padding-right: 40px; /* Extra padding for position indicator and scrollbar */
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.75em;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+        }
+        
+        .target-token {
+            background-color: rgba(255, 0, 0, 0.2);
+            border: 2px solid red;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        
+        .context-loading {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        /* Position indicator (minimap) */
+        .position-indicator {
+            position: absolute;
+            right: 15px; /* Leave room for scrollbar */
+            top: 0;
+            width: 12px;
+            height: 100%;
+            background: #f0f0f0;
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+        }
+        
+        .position-marker {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: red;
+            transition: top 0.3s ease;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Progress Section -->
-        <div class="progress-section">
-            <div class="progress-title">Interpretation Progress</div>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="progress-bar" style="width: 0%">
-                    <span id="progress-text">0%</span>
+    <div class="main-layout">
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="container">
+                <!-- Progress Section -->
+                <div class="progress-section">
+                    <div class="progress-title">Interpretation Progress</div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" id="progress-bar" style="width: 0%">
+                            <span id="progress-text">0%</span>
+                        </div>
+                    </div>
+                    <div class="progress-stats">
+                        <span id="interpreted-count">Interpreted: 0</span>
+                        <span id="skipped-count">Skipped: 0</span>
+                        <span id="remaining-count">Remaining: {total_features}</span>
+                    </div>
                 </div>
-            </div>
-            <div class="progress-stats">
-                <span id="interpreted-count">Interpreted: 0</span>
-                <span id="skipped-count">Skipped: 0</span>
-                <span id="remaining-count">Remaining: {total_features}</span>
+                
+                <!-- Feature Display -->
+                <div id="feature-container">
+                    <div class="loading">Loading features...</div>
+                </div>
             </div>
         </div>
         
-        <!-- Feature Display -->
-        <div id="feature-container">
-            <div class="loading">Loading features...</div>
+        <!-- Right Panel - Context Display -->
+        <div class="right-panel" id="context-panel">
+            <div class="context-header">
+                <div class="context-title">Full Context</div>
+                <div class="context-info" id="context-info">Click on an example to view its full context</div>
+            </div>
+            <div class="context-wrapper">
+                <div class="context-content" id="context-content">
+                    <!-- Context will be loaded here -->
+                </div>
+                <div class="position-indicator" id="position-indicator">
+                    <div class="position-marker" id="position-marker"></div>
+                </div>
+            </div>
         </div>
         
         <!-- Control Section with Interpretation -->
@@ -410,7 +542,7 @@ def generate_dashboard_html(data_path, output_path):
         </div>
         
         <div class="save-status" id="save-status"></div>
-    </div>
+    </div> <!-- end main-layout -->
     
     <script>
         // Store all features and current state
@@ -418,13 +550,15 @@ def generate_dashboard_html(data_path, output_path):
         const totalFeatures = {total_features};
         let currentFeature = null;
         let interpretations = {};
+        let contextCache = {}; // Cache loaded contexts
+        let selectedExample = null;
         
         // API configuration
         const API_BASE = window.location.port === '8080' ? 'http://localhost:8085' : '';
         
         async function loadInterpretations() {{
             try {{
-                const response = await fetch(`${API_BASE}/api/interpretations`);
+                const response = await fetch(API_BASE + '/api/interpretations');
                 if (response.ok) {{
                     const data = await response.json();
                     interpretations = data.interpretations || {};
@@ -453,11 +587,11 @@ def generate_dashboard_html(data_path, output_path):
             const remaining = totalFeatures - completed;
             const percentage = Math.round((completed / totalFeatures) * 100);
             
-            document.getElementById('progress-bar').style.width = `${percentage}%`;
-            document.getElementById('progress-text').textContent = `${percentage}%`;
-            document.getElementById('interpreted-count').textContent = `Interpreted: ${interpreted}`;
-            document.getElementById('skipped-count').textContent = `Skipped: ${skipped}`;
-            document.getElementById('remaining-count').textContent = `Remaining: ${remaining}`;
+            document.getElementById('progress-bar').style.width = percentage + '%';
+            document.getElementById('progress-text').textContent = percentage + '%';
+            document.getElementById('interpreted-count').textContent = 'Interpreted: ' + interpreted;
+            document.getElementById('skipped-count').textContent = 'Skipped: ' + skipped;
+            document.getElementById('remaining-count').textContent = 'Remaining: ' + remaining;
         }}
         
         function getUnannotatedFeatures() {{
@@ -492,12 +626,16 @@ def generate_dashboard_html(data_path, output_path):
             
             // Show all examples
             examples.forEach((example, idx) => {{
-                html += `
-                    <div class="example-item">
-                        <div class="example-info">Rollout ${example.rollout_idx}, Example ${idx + 1}, Activation: ${example.activation.toFixed(3)}</div>
-                        <div>${generateTokenHtml(example)}</div>
-                    </div>
-                `;
+                const rolloutIdx = example.rollout_idx;
+                const tokenIdx = example.token_idx;
+                const activation = example.activation.toFixed(3);
+                const tokenHtml = generateTokenHtml(example);
+                const exampleNum = idx + 1;
+                html += 
+                    '<div class="example-item" onclick="selectExample(' + idx + ', ' + rolloutIdx + ', ' + tokenIdx + ')">' +
+                        '<div class="example-info">Rollout ' + rolloutIdx + ', Example ' + exampleNum + ', Activation: ' + activation + '</div>' +
+                        '<div>' + tokenHtml + '</div>' +
+                    '</div>';
             }});
             
             html += `
@@ -529,18 +667,19 @@ def generate_dashboard_html(data_path, output_path):
                 const activation = activations[i];
                 const intensity = Math.min(Math.abs(activation) * 0.1, 0.7);
                 const bgColor = activation > 0 
-                    ? `rgba(255, 0, 0, ${intensity})` 
-                    : `rgba(0, 0, 255, ${intensity})`;
+                    ? 'rgba(255, 0, 0, ' + intensity + ')' 
+                    : 'rgba(0, 0, 255, ' + intensity + ')';
                 
                 const tokenDisplay = token.replace(/\\n/g, '\\\\n').replace(/ /g, '&nbsp;');
                 
                 if (i === targetIdx) {{
-                    html += `<span class="token-with-tooltip" style="background-color: ${bgColor}; border: 2px solid red; font-weight: bold; padding: 2px 1px; border-radius: 2px; position: relative; display: inline-block;">`;
+                    html += '<span class="token-with-tooltip" style="background-color: ' + bgColor + '; border: 2px solid red; font-weight: bold; padding: 2px 1px; border-radius: 2px; position: relative; display: inline-block;">';
                 }} else {{
-                    html += `<span class="token-with-tooltip" style="background-color: ${bgColor}; padding: 2px 1px; border-radius: 2px; position: relative; display: inline-block;">`;
+                    html += '<span class="token-with-tooltip" style="background-color: ' + bgColor + '; padding: 2px 1px; border-radius: 2px; position: relative; display: inline-block;">';
                 }}
                 
-                html += `${tokenDisplay}<span class="token-tooltip">${activation.toFixed(3)}</span></span>`;
+                const activationStr = activation.toFixed(3);
+                html += tokenDisplay + '<span class="token-tooltip">' + activationStr + '</span></span>';
             }});
             
             return html;
@@ -557,7 +696,7 @@ def generate_dashboard_html(data_path, output_path):
             statusEl.className = 'save-status';
             
             try {{
-                const response = await fetch(`${API_BASE}/api/interpretations`, {
+                const response = await fetch(API_BASE + '/api/interpretations', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -603,20 +742,151 @@ def generate_dashboard_html(data_path, output_path):
         
         function showCompletionMessage() {{
             const container = document.getElementById('feature-container');
-            container.innerHTML = `
-                <div class="completion-message">
-                    <div class="completion-title">🎉 All Features Reviewed!</div>
-                    <p>You've gone through all available features.</p>
-                    <p>Total features: ${totalFeatures}</p>
-                </div>
-            `;
+            container.innerHTML = 
+                '<div class="completion-message">' +
+                    '<div class="completion-title">🎉 All Features Reviewed!</div>' +
+                    '<p>You\\'ve gone through all available features.</p>' +
+                    '<p>Total features: ' + totalFeatures + '</p>' +
+                '</div>';
             document.getElementById('control-section').style.display = 'none';
+        }}
+        
+        async function loadRolloutContext(rolloutIdx, tokenIdx) {{
+            const contextPanel = document.getElementById('context-panel');
+            const contextContent = document.getElementById('context-content');
+            const contextInfo = document.getElementById('context-info');
+            
+            // Show the context panel
+            contextPanel.style.display = 'flex';
+            
+            // Check cache first
+            if (contextCache[rolloutIdx]) {{
+                displayContext(contextCache[rolloutIdx].text, contextCache[rolloutIdx].tokens, tokenIdx);
+                return;
+            }}
+            
+            // Show loading state
+            contextContent.innerHTML = '<div class="context-loading">Loading context...</div>';
+            contextInfo.textContent = 'Rollout ' + rolloutIdx;
+            
+            try {{
+                const response = await fetch(API_BASE + '/api/rollout_context/' + rolloutIdx);
+                if (response.ok) {{
+                    const data = await response.json();
+                    contextCache[rolloutIdx] = data;
+                    displayContext(data.text, data.tokens, tokenIdx);
+                }} else {{
+                    contextContent.innerHTML = '<div class="context-loading">Failed to load context</div>';
+                }}
+            }} catch (error) {{
+                console.error('Failed to load context:', error);
+                contextContent.innerHTML = '<div class="context-loading">Error loading context</div>';
+            }}
+        }}
+        
+        function displayContext(fullText, tokens, tokenIdx) {{
+            const contextContent = document.getElementById('context-content');
+            
+            if (!tokens || tokens.length === 0) {{
+                // Fallback: just display the text without highlighting
+                const escapedText = fullText
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+                contextContent.innerHTML = escapedText;
+                return;
+            }}
+            
+            // Build the text with highlighted token
+            let html = '';
+            let currentPos = 0;
+            
+            // Concatenate tokens to rebuild the text with highlighting
+            tokens.forEach((token, idx) => {{
+                // Escape the token
+                const escapedToken = token
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+                
+                if (idx === tokenIdx) {{
+                    // Highlight the target token
+                    html += '<span class="target-token" id="target-token">' + escapedToken + '</span>';
+                }} else {{
+                    html += escapedToken;
+                }}
+            }});
+            
+            contextContent.innerHTML = html;
+            
+            // Scroll to the highlighted token
+            setTimeout(() => {{
+                const targetElement = document.getElementById('target-token');
+                if (targetElement) {{
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    updatePositionMarker();
+                }}
+            }}, 100);
+        }}
+        
+        function updatePositionMarker() {{
+            const targetElement = document.getElementById('target-token');
+            const contextContent = document.getElementById('context-content');
+            const positionMarker = document.getElementById('position-marker');
+            
+            if (!targetElement || !contextContent || !positionMarker) return;
+            
+            // Calculate the position of the target token relative to the content
+            const contentHeight = contextContent.scrollHeight;
+            const tokenOffset = targetElement.offsetTop - contextContent.offsetTop;
+            const markerPosition = (tokenOffset / contentHeight) * 100;
+            
+            // Update the marker position
+            positionMarker.style.top = markerPosition + '%';
+        }}
+        
+        function selectExample(exampleIdx, rolloutIdx, tokenIdx) {{
+            // Update selected state
+            const allExamples = document.querySelectorAll('.example-item');
+            allExamples.forEach((el, idx) => {{
+                if (idx === exampleIdx) {{
+                    el.classList.add('selected');
+                }} else {{
+                    el.classList.remove('selected');
+                }}
+            }});
+            
+            // Load the context
+            selectedExample = exampleIdx;
+            loadRolloutContext(rolloutIdx, tokenIdx);
         }}
         
         // Initialize on load
         window.addEventListener('DOMContentLoaded', async () => {{
             await loadInterpretations();
+            
+            // Add scroll listener for context panel
+            const contextContent = document.getElementById('context-content');
+            if (contextContent) {{
+                contextContent.addEventListener('scroll', () => {{
+                    updateScrollIndicator();
+                }});
+            }}
         }});
+        
+        function updateScrollIndicator() {{
+            const contextContent = document.getElementById('context-content');
+            const positionIndicator = document.getElementById('position-indicator');
+            
+            if (!contextContent || !positionIndicator) return;
+            
+            // You could add a viewport indicator here if desired
+            // For now, we just ensure the marker stays visible
+        }}
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {{
