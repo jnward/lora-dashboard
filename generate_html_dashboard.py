@@ -480,6 +480,84 @@ def generate_dashboard_html(data_path, output_path):
             border: 1px solid #ddd;
         }
         
+        /* Interpretation section styles */
+        .interpretation-section {
+            background: #f0f4f8;
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            margin-top: auto;
+        }
+        
+        .interpretation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .interpretation-title {
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+        }
+        
+        .star-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .star-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        .star-label {
+            color: #666;
+            font-size: 0.85em;
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .interpretation-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 0.85em;
+            resize: vertical;
+            background: white;
+        }
+        
+        .interpretation-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .save-status {
+            margin-top: 8px;
+            font-size: 0.8em;
+            color: #666;
+            text-align: right;
+            min-height: 20px;
+        }
+        
+        .save-status.saving {
+            color: #3498db;
+        }
+        
+        .save-status.saved {
+            color: #27ae60;
+        }
+        
+        .save-status.error {
+            color: #e74c3c;
+        }
+        
         /* Histogram styles */
         .histogram-svg {
             width: 100%;
@@ -730,6 +808,11 @@ def generate_dashboard_html(data_path, output_path):
     
     <script>
         let layerIndices = [];
+        let interpretations = {};
+        let saveTimeouts = {};
+        
+        // API configuration - adjust if running server on different port
+        const API_BASE = window.location.port === '8080' ? 'http://localhost:8085' : '';
         
         function toggleStatistics(layerIdx) {
             const content = document.getElementById(`stats-content-${layerIdx}`);
@@ -746,6 +829,118 @@ def generate_dashboard_html(data_path, output_path):
             }
         }
         
+        async function loadInterpretations() {
+            try {
+                const response = await fetch(`${API_BASE}/api/interpretations`);
+                if (response.ok) {
+                    const data = await response.json();
+                    interpretations = data.interpretations || {};
+                    
+                    // Update UI with loaded interpretations
+                    Object.keys(interpretations).forEach(featureKey => {
+                        const interpretation = interpretations[featureKey];
+                        
+                        // Update textarea
+                        const textarea = document.getElementById(`interpretation-${featureKey}`);
+                        if (textarea) {
+                            textarea.value = interpretation.text || '';
+                        }
+                        
+                        // Update star checkbox
+                        const starCheckbox = document.getElementById(`star-${featureKey}`);
+                        if (starCheckbox) {
+                            starCheckbox.checked = interpretation.starred || false;
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Failed to load interpretations:', error);
+            }
+        }
+        
+        async function saveInterpretation(featureKey, text, starred) {
+            const statusElement = document.getElementById(`status-${featureKey}`);
+            
+            try {
+                // Show saving status
+                if (statusElement) {
+                    statusElement.textContent = 'Saving...';
+                    statusElement.className = 'save-status saving';
+                }
+                
+                const response = await fetch(`${API_BASE}/api/interpretations`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        featureKey: featureKey,
+                        text: text,
+                        starred: starred
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    interpretations[featureKey] = data.interpretation;
+                    
+                    // Show saved status
+                    if (statusElement) {
+                        statusElement.textContent = 'Saved';
+                        statusElement.className = 'save-status saved';
+                        
+                        // Clear status after 2 seconds
+                        setTimeout(() => {
+                            statusElement.textContent = '';
+                            statusElement.className = 'save-status';
+                        }, 2000);
+                    }
+                } else {
+                    throw new Error('Save failed');
+                }
+            } catch (error) {
+                console.error('Failed to save interpretation:', error);
+                
+                // Show error status
+                if (statusElement) {
+                    statusElement.textContent = 'Error saving';
+                    statusElement.className = 'save-status error';
+                }
+            }
+        }
+        
+        function setupInterpretationHandlers() {
+            // Handle textarea changes with debouncing
+            document.querySelectorAll('.interpretation-textarea').forEach(textarea => {
+                textarea.addEventListener('input', (event) => {
+                    const featureKey = event.target.dataset.featureKey;
+                    const text = event.target.value;
+                    const starred = document.getElementById(`star-${featureKey}`).checked;
+                    
+                    // Clear existing timeout
+                    if (saveTimeouts[featureKey]) {
+                        clearTimeout(saveTimeouts[featureKey]);
+                    }
+                    
+                    // Set new timeout to save after 500ms of no typing
+                    saveTimeouts[featureKey] = setTimeout(() => {
+                        saveInterpretation(featureKey, text, starred);
+                    }, 500);
+                });
+            });
+            
+            // Handle star checkbox changes
+            document.querySelectorAll('.star-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', (event) => {
+                    const featureKey = event.target.dataset.featureKey;
+                    const starred = event.target.checked;
+                    const text = document.getElementById(`interpretation-${featureKey}`).value;
+                    
+                    saveInterpretation(featureKey, text, starred);
+                });
+            });
+        }
+        
         function showLayer(layerIdx) {
             // Hide all layers
             document.querySelectorAll('.layer-section').forEach(section => {
@@ -756,6 +951,11 @@ def generate_dashboard_html(data_path, output_path):
             const selectedLayer = document.getElementById(`layer-${layerIdx}`);
             if (selectedLayer) {
                 selectedLayer.classList.add('active');
+                
+                // Set up handlers for newly visible elements
+                setTimeout(() => {
+                    setupInterpretationHandlers();
+                }, 100);
             }
             
             // Update button states
@@ -787,14 +987,20 @@ def generate_dashboard_html(data_path, output_path):
         }
         
         // Show first layer on load
-        window.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('DOMContentLoaded', async () => {
             const select = document.getElementById('layer-select');
             layerIndices = Array.from(select.options).map(opt => opt.value);
+            
+            // Load saved interpretations
+            await loadInterpretations();
             
             const firstOption = document.querySelector('#layer-select option');
             if (firstOption) {
                 showLayer(firstOption.value);
             }
+            
+            // Set up interpretation handlers
+            setupInterpretationHandlers();
         });
     </script>
 </body>
@@ -852,7 +1058,26 @@ def generate_dashboard_html(data_path, output_path):
                 )
                 layer_html += '</div></div>'
             
-            layer_html += '</div></div>'
+            layer_html += '</div>'
+            
+            # Add interpretation section for positive
+            feature_key = f'layer_{layer_idx}_{proj_type}_positive'
+            layer_html += f'''
+            <div class="interpretation-section">
+                <div class="interpretation-header">
+                    <div class="interpretation-title">Interpretation</div>
+                    <div class="star-container">
+                        <input type="checkbox" class="star-checkbox" id="star-{feature_key}" data-feature-key="{feature_key}">
+                        <label for="star-{feature_key}" class="star-label">Star this feature</label>
+                    </div>
+                </div>
+                <textarea class="interpretation-textarea" id="interpretation-{feature_key}" 
+                          data-feature-key="{feature_key}" 
+                          placeholder="Write your interpretation of this feature..."></textarea>
+                <div class="save-status" id="status-{feature_key}"></div>
+            </div>
+            '''
+            layer_html += '</div>'
             
             # Negative activations cell
             layer_html += f'<div class="projection-card">'
@@ -870,7 +1095,26 @@ def generate_dashboard_html(data_path, output_path):
                 )
                 layer_html += '</div></div>'
             
-            layer_html += '</div></div>'
+            layer_html += '</div>'
+            
+            # Add interpretation section for negative
+            feature_key = f'layer_{layer_idx}_{proj_type}_negative'
+            layer_html += f'''
+            <div class="interpretation-section">
+                <div class="interpretation-header">
+                    <div class="interpretation-title">Interpretation</div>
+                    <div class="star-container">
+                        <input type="checkbox" class="star-checkbox" id="star-{feature_key}" data-feature-key="{feature_key}">
+                        <label for="star-{feature_key}" class="star-label">Star this feature</label>
+                    </div>
+                </div>
+                <textarea class="interpretation-textarea" id="interpretation-{feature_key}" 
+                          data-feature-key="{feature_key}" 
+                          placeholder="Write your interpretation of this feature..."></textarea>
+                <div class="save-status" id="status-{feature_key}"></div>
+            </div>
+            '''
+            layer_html += '</div>'
             
             # Close column
             layer_html += '</div>'

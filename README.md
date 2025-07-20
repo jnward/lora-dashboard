@@ -64,7 +64,7 @@ Options:
 
 ## Features
 
-- **No Server Required**: Just open the HTML file in your browser
+- **No Server Required**: Just open the HTML file in your browser (or use the server for interpretations)
 - **Interactive Layer Navigation**: Dropdown to switch between layers
 - **Token Visualization**: Color-coded activation intensities
   - Red background: Positive activations
@@ -73,6 +73,8 @@ Options:
 - **Hover Details**: See exact activation values on hover
 - **Responsive Design**: Works on desktop and mobile
 - **Side-by-Side Projections**: View gate_proj, up_proj, and down_proj together
+- **Feature Interpretations**: Write and save interpretations for each feature
+- **Star Important Features**: Mark features of particular interest
 
 ## How It Works
 
@@ -110,3 +112,49 @@ open lora_activations_dashboard.html  # macOS
 # or
 xdg-open lora_activations_dashboard.html  # Linux
 ```
+
+## Using Feature Interpretations
+
+The dashboard now supports saving interpretations for each feature. To use this functionality:
+
+### 1. Run the Dashboard Server
+
+```bash
+python3 dashboard_server.py
+```
+
+This starts a local server on port 8080 that:
+- Serves the dashboard at http://localhost:8080
+- Saves interpretations to `interpretations.json`
+- Provides auto-save functionality
+
+### 2. Write Interpretations
+
+Each of the 6 panels (3 projection types × positive/negative) has:
+- **Text area**: Write your interpretation of what the feature detects
+- **Star checkbox**: Mark particularly interesting or important features
+- **Auto-save**: Interpretations save automatically as you type
+
+### 3. Data Storage
+
+Interpretations are stored in `interpretations.json`:
+```json
+{
+  "interpretations": {
+    "layer_10_gate_proj_positive": {
+      "text": "Activates on mathematical operators and symbols",
+      "starred": true,
+      "lastModified": "2024-01-20T10:30:00Z"
+    }
+  }
+}
+```
+
+### Server Options
+
+```bash
+python3 dashboard_server.py --port 8000 --interpretations-file my_interpretations.json
+```
+
+- `--port`: Change server port (default: 8080)
+- `--interpretations-file`: Use a different file for storing interpretations
