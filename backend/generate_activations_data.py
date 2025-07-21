@@ -21,6 +21,7 @@ from datetime import datetime
 import argparse
 import os
 import shutil
+import h5py
 
 
 @dataclass
@@ -367,6 +368,11 @@ def main(args):
     rollout_contexts = {}  # Store full text for each rollout
     rollout_tokens = {}  # Store token information for each rollout
     
+    # Create activations directory
+    activations_dir = os.path.join(os.path.dirname(args.output or os.path.join(os.path.dirname(__file__), "activations_data.json")), "activations")
+    os.makedirs(activations_dir, exist_ok=True)
+    print(f"Activations will be saved to: {activations_dir}")
+    
     # Process rollouts
     print(f"Processing {num_examples} rollouts...")
     for rollout_idx in tqdm(range(num_examples), desc="Processing rollouts"):
@@ -397,6 +403,26 @@ def main(args):
             rollout_storage[rollout_idx] = result
             # Store token information for highlighting
             rollout_tokens[rollout_idx] = result['tokens']
+            
+            # Save full activations to HDF5
+            h5_path = os.path.join(activations_dir, f'rollout_{rollout_idx}.h5')
+            with h5py.File(h5_path, 'w') as f:
+                # Combine all activations into a single array [num_tokens, num_layers, 3]
+                num_tokens = len(result['tokens'])
+                activations_array = np.zeros((num_tokens, len(lora_layers), 3), dtype=np.float16)
+                
+                for layer_idx_pos, layer_idx in enumerate(lora_layers):
+                    for proj_idx, proj_type in enumerate(['gate_proj', 'up_proj', 'down_proj']):
+                        if layer_idx in result['activations'][proj_type]:
+                            activations_array[:, layer_idx_pos, proj_idx] = result['activations'][proj_type][layer_idx].astype(np.float16)
+                
+                # Save with compression
+                f.create_dataset('activations', data=activations_array, 
+                               compression='gzip', compression_opts=1)
+                f.attrs['num_tokens'] = num_tokens
+                f.attrs['num_layers'] = len(lora_layers)
+                f.attrs['projections'] = 3
+                f.attrs['rollout_idx'] = rollout_idx
         
         # Periodic garbage collection
         if rollout_idx % 10 == 0:
@@ -498,6 +524,12 @@ def main(args):
     with open(tokens_path, 'w') as f:
         json.dump(rollout_tokens, f, indent=2)
     print(f"Tokens file size: {os.path.getsize(tokens_path) / 1024 / 1024:.2f} MB")
+    
+    # Report on activation files
+    activation_files = glob.glob(os.path.join(activations_dir, "rollout_*.h5"))
+    total_size = sum(os.path.getsize(f) for f in activation_files) / (1024 ** 3)
+    print(f"\nCreated {len(activation_files)} activation files")
+    print(f"Total activation data size: {total_size:.2f} GB")
     
     # Copy to frontend if not disabled
     if args.copy_to_frontend:

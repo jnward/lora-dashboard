@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.env
+
+# Data files
+backend/activations/
+backend/activations_data.json
+backend/rollout_contexts.json
+backend/rollout_tokens.json
+interpretations.json
+
+# Test files
+test_*.py
+test_*.html
+
+# Generated HTML
+interpretation_dashboard.html
+lora_activations_dashboard.html
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db

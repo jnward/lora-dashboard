@@ -8,6 +8,10 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import os
 from datetime import datetime
+import h5py
+import numpy as np
+import base64
+import gzip
 
 class APIHandler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -69,6 +73,44 @@ class APIHandler(BaseHTTPRequestHandler):
                 else:
                     self.send_error(404, "Rollout contexts file not found")
             except Exception as e:
+                self.send_error(500, str(e))
+        elif self.path.startswith('/api/activations/'):
+            # Extract rollout_idx from path
+            try:
+                rollout_idx = self.path.split('/')[-1]
+                
+                # Find the HDF5 file
+                h5_path = f'backend/activations/rollout_{rollout_idx}.h5'
+                if not os.path.exists(h5_path):
+                    h5_path = f'activations/rollout_{rollout_idx}.h5'
+                
+                if os.path.exists(h5_path):
+                    # Load activations from HDF5
+                    with h5py.File(h5_path, 'r') as f:
+                        activations = f['activations'][:]
+                        shape = list(activations.shape)
+                    
+                    # Convert to float16 and compress
+                    activations_f16 = activations.astype(np.float16)
+                    compressed = gzip.compress(activations_f16.tobytes(), compresslevel=1)
+                    encoded = base64.b64encode(compressed).decode('ascii')
+                    
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    
+                    response = {
+                        'rollout_idx': rollout_idx,
+                        'shape': shape,
+                        'dtype': 'float16',
+                        'data': encoded
+                    }
+                    self.wfile.write(json.dumps(response).encode())
+                else:
+                    self.send_error(404, f"Activations for rollout {rollout_idx} not found")
+            except Exception as e:
+                print(f"Error serving activations: {e}")
                 self.send_error(500, str(e))
         else:
             self.send_error(404)

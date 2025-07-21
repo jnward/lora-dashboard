@@ -84,7 +84,7 @@ def generate_dashboard_html(data_path, output_path):
     total_features = len(all_features)
     
     # Build HTML
-    html_content = """<!DOCTYPE html>
+    html_content = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -93,14 +93,15 @@ def generate_dashboard_html(data_path, output_path):
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>LoRA Feature Interpretation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pako/2.1.0/pako.min.js"></script>
     <style>
-        * {
+        * {{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
+        }}
         
-        body {
+        body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f5f5f5;
             color: #333;
@@ -108,67 +109,67 @@ def generate_dashboard_html(data_path, output_path):
             padding: 0;
             margin: 0;
             overflow: hidden;
-        }
+        }}
         
-        .main-layout {
+        .main-layout {{
             display: flex;
             height: 100vh;
             width: 100vw;
-        }
+        }}
         
-        .left-panel {
+        .left-panel {{
             flex: 0 0 60%;
             padding: 20px;
             overflow-y: auto;
             padding-bottom: 100px; /* Space for fixed controls */
-        }
+        }}
         
-        .right-panel {
+        .right-panel {{
             flex: 0 0 40%;
             background: white;
             border-left: 1px solid #ddd;
             position: relative;
             display: none; /* Hidden initially, will be changed to flex when shown */
             flex-direction: column;
-        }
+        }}
         
-        .context-wrapper {
+        .context-wrapper {{
             position: relative;
             flex: 1;
             display: flex;
             overflow: hidden;
-        }
+        }}
         
-        .container {
+        .container {{
             max-width: 100%;
             margin: 0 auto;
-        }
+        }}
         
         /* Progress section */
-        .progress-section {
+        .progress-section {{
             background: white;
             padding: 10px 15px;
             border-radius: 6px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 15px;
-        }
+        }}
         
-        .progress-title {
+        .progress-title {{
             font-size: 0.9em;
             font-weight: bold;
             margin-bottom: 6px;
             color: #2c3e50;
-        }
+        }}
         
-        .progress-bar-container {
+        .progress-bar-container {{
             background: #e0e0e0;
             height: 20px;
             border-radius: 10px;
             overflow: hidden;
             position: relative;
-        }
+        }}
         
-        .progress-bar {
+        .progress-bar {{
             height: 100%;
             background: linear-gradient(to right, #3498db, #2ecc71);
             transition: width 0.3s ease;
@@ -177,48 +178,48 @@ def generate_dashboard_html(data_path, output_path):
             justify-content: center;
             color: white;
             font-weight: bold;
-        }
+        }}
         
-        .progress-stats {
+        .progress-stats {{
             margin-top: 10px;
             display: flex;
             justify-content: space-between;
             font-size: 0.9em;
             color: #666;
-        }
+        }}
         
         /* Feature display */
-        .feature-section {
+        .feature-section {{
             background: white;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-        }
+        }}
         
-        .feature-header {
+        .feature-header {{
             text-align: center;
             margin-bottom: 30px;
-        }
+        }}
         
-        .feature-title {
+        .feature-title {{
             font-size: 1.8em;
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 10px;
-        }
+        }}
         
-        .feature-subtitle {
+        .feature-subtitle {{
             color: #666;
             font-size: 1.1em;
-        }
+        }}
         
         /* Examples */
-        .examples-container {
+        .examples-container {{
             margin-bottom: 30px;
-        }
+        }}
         
-        .example-item {
+        .example-item {{
             background: #f8f9fa;
             padding: 15px;
             border-radius: 6px;
@@ -229,28 +230,28 @@ def generate_dashboard_html(data_path, output_path):
             overflow-x: auto;
             cursor: pointer;
             transition: all 0.2s;
-        }
+        }}
         
-        .example-item:hover {
+        .example-item:hover {{
             background: #e9ecef;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+        }}
         
-        .example-item.selected {
+        .example-item.selected {{
             background: #d4edda;
             border: 2px solid #28a745;
-        }
+        }}
         
-        .example-info {
+        .example-info {{
             font-size: 0.85em;
             color: #666;
             margin-bottom: 8px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
+        }}
         
         
         /* Control section */
-        .control-section {
+        .control-section {{
             position: fixed;
             bottom: 0;
             left: 0;
@@ -263,16 +264,16 @@ def generate_dashboard_html(data_path, output_path):
             align-items: center;
             gap: 30px;
             z-index: 1000;
-        }
+        }}
         
-        .interpretation-mini {
+        .interpretation-mini {{
             display: flex;
             align-items: center;
             gap: 15px;
             flex: 0 1 600px;
-        }
+        }}
         
-        .interpretation-mini-textarea {
+        .interpretation-mini-textarea {{
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
@@ -282,26 +283,26 @@ def generate_dashboard_html(data_path, output_path):
             resize: none;
             height: 50px;
             background: white;
-        }
+        }}
         
-        .interpretation-mini-textarea:focus {
+        .interpretation-mini-textarea:focus {{
             outline: none;
             border-color: #3498db;
             box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
-        }
+        }}
         
-        .star-container-mini {
+        .star-container-mini {{
             display: flex;
             align-items: center;
             gap: 5px;
-        }
+        }}
         
-        .button-group {
+        .button-group {{
             display: flex;
             gap: 15px;
-        }
+        }}
         
-        .control-button {
+        .control-button {{
             padding: 12px 30px;
             font-size: 1.1em;
             font-weight: bold;
@@ -309,52 +310,52 @@ def generate_dashboard_html(data_path, output_path):
             border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s;
-        }
+        }}
         
-        .next-button {
+        .next-button {{
             background: #2ecc71;
             color: white;
-        }
+        }}
         
-        .next-button:hover {
+        .next-button:hover {{
             background: #27ae60;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+        }}
         
-        .skip-button {
+        .skip-button {{
             background: #e74c3c;
             color: white;
-        }
+        }}
         
-        .skip-button:hover {
+        .skip-button:hover {{
             background: #c0392b;
             transform: translateY(-1px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }
+        }}
         
         /* Completion message */
-        .completion-message {
+        .completion-message {{
             text-align: center;
             padding: 50px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+        }}
         
-        .completion-title {
+        .completion-title {{
             font-size: 2em;
             color: #2ecc71;
             margin-bottom: 20px;
-        }
+        }}
         
         /* Tooltip styles */
-        .token-with-tooltip {
+        .token-with-tooltip {{
             position: relative;
             cursor: help;
-        }
+        }}
         
-        .token-tooltip {
+        .token-tooltip {{
             position: absolute;
             bottom: 100%;
             left: 50%;
@@ -370,9 +371,9 @@ def generate_dashboard_html(data_path, output_path):
             transition: opacity 0.2s;
             z-index: 1000;
             margin-bottom: 4px;
-        }
+        }}
         
-        .token-tooltip::after {
+        .token-tooltip::after {{
             content: '';
             position: absolute;
             top: 100%;
@@ -380,57 +381,57 @@ def generate_dashboard_html(data_path, output_path):
             transform: translateX(-50%);
             border: 4px solid transparent;
             border-top-color: #333;
-        }
+        }}
         
-        .token-with-tooltip:hover .token-tooltip {
+        .token-with-tooltip:hover .token-tooltip {{
             opacity: 1;
-        }
+        }}
         
         /* Loading state */
-        .loading {
+        .loading {{
             text-align: center;
             padding: 50px;
             color: #666;
-        }
+        }}
         
-        .save-status {
+        .save-status {{
             margin-top: 10px;
             font-size: 0.9em;
             color: #666;
             text-align: center;
-        }
+        }}
         
-        .save-status.saved {
+        .save-status.saved {{
             color: #2ecc71;
-        }
+        }}
         
-        .save-status.error {
+        .save-status.error {{
             color: #e74c3c;
-        }
+        }}
         
         /* Context panel styles */
-        .context-header {
+        .context-header {{
             position: sticky;
             top: 0;
             background: #f8f9fa;
             padding: 15px 20px;
             border-bottom: 1px solid #ddd;
             z-index: 100;
-        }
+        }}
         
-        .context-title {
+        .context-title {{
             font-size: 1.2em;
             font-weight: bold;
             color: #2c3e50;
             margin-bottom: 5px;
-        }
+        }}
         
-        .context-info {
+        .context-info {{
             font-size: 0.9em;
             color: #666;
-        }
+        }}
         
-        .context-content {
+        .context-content {{
             flex: 1;
             padding: 20px;
             padding-right: 40px; /* Extra padding for position indicator and scrollbar */
@@ -440,24 +441,24 @@ def generate_dashboard_html(data_path, output_path):
             white-space: pre-wrap;
             word-wrap: break-word;
             overflow-y: auto;
-        }
+        }}
         
-        .target-token {
+        .target-token {{
             background-color: rgba(255, 0, 0, 0.2);
             border: 2px solid red;
             padding: 2px 4px;
             border-radius: 3px;
             font-weight: bold;
-        }
+        }}
         
-        .context-loading {
+        .context-loading {{
             text-align: center;
             padding: 50px;
             color: #666;
-        }
+        }}
         
         /* Position indicator (minimap) */
-        .position-indicator {
+        .position-indicator {{
             position: absolute;
             right: 15px; /* Leave room for scrollbar */
             top: 0;
@@ -466,16 +467,16 @@ def generate_dashboard_html(data_path, output_path):
             background: #f0f0f0;
             border-left: 1px solid #ddd;
             border-right: 1px solid #ddd;
-        }
+        }}
         
-        .position-marker {
+        .position-marker {{
             position: absolute;
             left: 0;
             width: 100%;
             height: 3px;
             background: red;
             transition: top 0.3s ease;
-        }
+        }}
     </style>
 </head>
 <body>
@@ -546,12 +547,14 @@ def generate_dashboard_html(data_path, output_path):
     
     <script>
         // Store all features and current state
-        const allFeatures = {features_json};
+        const allFeatures = {json.dumps(all_features)};
         const totalFeatures = {total_features};
         let currentFeature = null;
-        let interpretations = {};
-        let contextCache = {}; // Cache loaded contexts
+        let interpretations = {{}};
+        let contextCache = {{}}; // Cache loaded contexts
         let selectedExample = null;
+        let activationsCache = {{}}; // Cache loaded activations
+        let currentActivations = null; // Currently displayed activations
         
         // API configuration
         const API_BASE = window.location.port === '8080' ? 'http://localhost:8085' : '';
@@ -561,7 +564,7 @@ def generate_dashboard_html(data_path, output_path):
                 const response = await fetch(API_BASE + '/api/interpretations');
                 if (response.ok) {{
                     const data = await response.json();
-                    interpretations = data.interpretations || {};
+                    interpretations = data.interpretations || {{}};
                     updateProgress();
                     loadNextFeature();
                 }}
@@ -696,18 +699,18 @@ def generate_dashboard_html(data_path, output_path):
             statusEl.className = 'save-status';
             
             try {{
-                const response = await fetch(API_BASE + '/api/interpretations', {
+                const response = await fetch(API_BASE + '/api/interpretations', {{
                     method: 'POST',
-                    headers: {
+                    headers: {{
                         'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
+                    }},
+                    body: JSON.stringify({{
                         featureKey: currentFeature.key,
                         text: text,
                         starred: starred,
                         skipped: skipFeature
-                    })
-                });
+                    }})
+                }});
                 
                 if (response.ok) {{
                     const data = await response.json();
@@ -759,32 +762,36 @@ def generate_dashboard_html(data_path, output_path):
             // Show the context panel
             contextPanel.style.display = 'flex';
             
-            // Check cache first
-            if (contextCache[rolloutIdx]) {{
-                displayContext(contextCache[rolloutIdx].text, contextCache[rolloutIdx].tokens, tokenIdx);
-                return;
-            }}
-            
             // Show loading state
-            contextContent.innerHTML = '<div class="context-loading">Loading context...</div>';
+            contextContent.innerHTML = '<div class="context-loading">Loading context and activations...</div>';
             contextInfo.textContent = 'Rollout ' + rolloutIdx;
             
             try {{
-                const response = await fetch(API_BASE + '/api/rollout_context/' + rolloutIdx);
-                if (response.ok) {{
-                    const data = await response.json();
-                    contextCache[rolloutIdx] = data;
-                    displayContext(data.text, data.tokens, tokenIdx);
-                }} else {{
-                    contextContent.innerHTML = '<div class="context-loading">Failed to load context</div>';
+                // Load context and activations in parallel
+                const [contextData, activations] = await Promise.all([
+                    // Load context if not cached
+                    contextCache[rolloutIdx] || fetch(API_BASE + '/api/rollout_context/' + rolloutIdx).then(r => r.json()),
+                    // Load activations
+                    loadActivations(rolloutIdx)
+                ]);
+                
+                // Cache context if it was just loaded
+                if (!contextCache[rolloutIdx]) {{
+                    contextCache[rolloutIdx] = contextData;
                 }}
+                
+                // Store current activations
+                currentActivations = activations;
+                
+                // Display with activations
+                displayContext(contextData.text, contextData.tokens, tokenIdx, activations);
             }} catch (error) {{
-                console.error('Failed to load context:', error);
-                contextContent.innerHTML = '<div class="context-loading">Error loading context</div>';
+                console.error('Failed to load context/activations:', error);
+                contextContent.innerHTML = '<div class="context-loading">Error loading data</div>';
             }}
         }}
         
-        function displayContext(fullText, tokens, tokenIdx) {{
+        function displayContext(fullText, tokens, tokenIdx, activations) {{
             const contextContent = document.getElementById('context-content');
             
             if (!tokens || tokens.length === 0) {{
@@ -799,9 +806,35 @@ def generate_dashboard_html(data_path, output_path):
                 return;
             }}
             
-            // Build the text with highlighted token
+            // Get activation for current feature if available
+            let tokenActivations = null;
+            if (activations && currentFeature) {{
+                const layerIdx = currentFeature.layer;
+                const projIdx = ['gate_proj', 'up_proj', 'down_proj'].indexOf(currentFeature.projection);
+                const [numTokens, numLayers, numProj] = activations.shape;
+                
+                // Find layer position in the data
+                let layerPos = -1;
+                for (let i = 0; i < numLayers; i++) {{
+                    // Assuming layers are in order - we might need to map this properly
+                    if (i === layerIdx) {{
+                        layerPos = i;
+                        break;
+                    }}
+                }}
+                
+                if (layerPos >= 0 && projIdx >= 0) {{
+                    // Extract activations for this feature
+                    tokenActivations = new Float32Array(numTokens);
+                    for (let t = 0; t < numTokens; t++) {{
+                        const idx = t * numLayers * numProj + layerPos * numProj + projIdx;
+                        tokenActivations[t] = activations.data[idx];
+                    }}
+                }}
+            }}
+            
+            // Build the text with highlighted token and activation overlays
             let html = '';
-            let currentPos = 0;
             
             // Concatenate tokens to rebuild the text with highlighting
             tokens.forEach((token, idx) => {{
@@ -813,11 +846,33 @@ def generate_dashboard_html(data_path, output_path):
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#039;');
                 
+                // Calculate activation background if available
+                let style = '';
+                if (tokenActivations && idx < tokenActivations.length) {{
+                    const activation = tokenActivations[idx];
+                    const polarity = currentFeature.polarity;
+                    
+                    // Only show activation if it matches the polarity we're looking at
+                    if ((polarity === 'positive' && activation > 0) || 
+                        (polarity === 'negative' && activation < 0)) {{
+                        const intensity = Math.min(Math.abs(activation) * 0.1, 0.7);
+                        const color = polarity === 'positive' 
+                            ? 'rgba(255, 0, 0, ' + intensity + ')' 
+                            : 'rgba(0, 0, 255, ' + intensity + ')';
+                        style = 'style="background-color: ' + color + ';"';
+                    }}
+                }}
+                
                 if (idx === tokenIdx) {{
-                    // Highlight the target token
-                    html += '<span class="target-token" id="target-token">' + escapedToken + '</span>';
+                    // Highlight the target token with border
+                    html += '<span class="target-token" id="target-token" ' + style + '>' + escapedToken + '</span>';
                 }} else {{
-                    html += escapedToken;
+                    // Regular token with activation background
+                    if (style) {{
+                        html += '<span ' + style + '>' + escapedToken + '</span>';
+                    }} else {{
+                        html += escapedToken;
+                    }}
                 }}
             }});
             
@@ -827,7 +882,7 @@ def generate_dashboard_html(data_path, output_path):
             setTimeout(() => {{
                 const targetElement = document.getElementById('target-token');
                 if (targetElement) {{
-                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetElement.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
                     updatePositionMarker();
                 }}
             }}, 100);
@@ -886,6 +941,78 @@ def generate_dashboard_html(data_path, output_path):
             
             // You could add a viewport indicator here if desired
             // For now, we just ensure the marker stays visible
+        }}
+        
+        async function loadActivations(rolloutIdx) {{
+            // Check cache first
+            if (activationsCache[rolloutIdx]) {{
+                return activationsCache[rolloutIdx];
+            }}
+            
+            try {{
+                const response = await fetch(API_BASE + '/api/activations/' + rolloutIdx);
+                if (!response.ok) {{
+                    throw new Error('Failed to load activations');
+                }}
+                
+                const data = await response.json();
+                
+                // Decode base64
+                const binaryString = atob(data.data);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {{
+                    bytes[i] = binaryString.charCodeAt(i);
+                }}
+                
+                // Decompress using pako (we'll need to include this library)
+                const decompressed = pako.inflate(bytes);
+                
+                // Convert to Float32Array (JS doesn't have Float16)
+                const float16Buffer = new ArrayBuffer(decompressed.length);
+                const float16View = new Uint8Array(float16Buffer);
+                float16View.set(decompressed);
+                
+                // For now, treat as Float32 (we'll lose some precision)
+                const numFloats = decompressed.length / 2;
+                const floatArray = new Float32Array(numFloats);
+                const dataView = new DataView(float16Buffer);
+                
+                // Simple float16 to float32 conversion
+                for (let i = 0; i < numFloats; i++) {{
+                    const float16 = dataView.getUint16(i * 2, true);
+                    // Simplified conversion - proper float16 conversion would be more complex
+                    const sign = (float16 >> 15) & 1;
+                    const exponent = (float16 >> 10) & 0x1f;
+                    const fraction = float16 & 0x3ff;
+                    
+                    if (exponent === 0) {{
+                        floatArray[i] = (sign ? -1 : 1) * Math.pow(2, -14) * (fraction / 1024);
+                    }} else if (exponent === 31) {{
+                        floatArray[i] = fraction ? NaN : (sign ? -Infinity : Infinity);
+                    }} else {{
+                        floatArray[i] = (sign ? -1 : 1) * Math.pow(2, exponent - 15) * (1 + fraction / 1024);
+                    }}
+                }}
+                
+                // Reshape to [num_tokens, num_layers, 3]
+                const activations = {{
+                    data: floatArray,
+                    shape: data.shape,
+                    rolloutIdx: rolloutIdx
+                }};
+                
+                // Cache it (limit cache size to 10 rollouts)
+                const cacheKeys = Object.keys(activationsCache);
+                if (cacheKeys.length >= 10) {{
+                    delete activationsCache[cacheKeys[0]];
+                }}
+                activationsCache[rolloutIdx] = activations;
+                
+                return activations;
+            }} catch (error) {{
+                console.error('Failed to load activations:', error);
+                return null;
+            }}
         }}
         
         // Keyboard shortcuts
