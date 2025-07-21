@@ -115,17 +115,19 @@ def generate_dashboard_html(data_path, output_path):
             display: flex;
             height: 100vh;
             width: 100vw;
+            padding-bottom: 80px; /* Space for control bar */
+            box-sizing: border-box;
         }}
         
         .left-panel {{
-            flex: 0 0 60%;
+            flex: 0 0 40%;
             padding: 20px;
             overflow-y: auto;
-            padding-bottom: 100px; /* Space for fixed controls */
+            padding-bottom: 20px; /* Normal bottom padding */
         }}
         
         .right-panel {{
-            flex: 0 0 40%;
+            flex: 0 0 60%;
             background: white;
             border-left: 1px solid #ddd;
             position: relative;
@@ -256,6 +258,7 @@ def generate_dashboard_html(data_path, output_path):
             bottom: 0;
             left: 0;
             right: 0;
+            height: 80px; /* Explicit height */
             background: white;
             padding: 15px 20px;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -264,6 +267,7 @@ def generate_dashboard_html(data_path, output_path):
             align-items: center;
             gap: 30px;
             z-index: 1000;
+            box-sizing: border-box; /* Include padding in height */
         }}
         
         .interpretation-mini {{
@@ -839,12 +843,23 @@ def generate_dashboard_html(data_path, output_path):
             // Concatenate tokens to rebuild the text with highlighting
             tokens.forEach((token, idx) => {{
                 // Escape the token
-                const escapedToken = token
+                let escapedToken = token
                     .replace(/&/g, '&amp;')
                     .replace(/</g, '&lt;')
                     .replace(/>/g, '&gt;')
                     .replace(/"/g, '&quot;')
                     .replace(/'/g, '&#039;');
+                
+                // Check if token contains newline and handle specially
+                let displayToken = escapedToken;
+                let hasNewline = token.includes('\\n');
+                if (hasNewline) {{
+                    // First, replace all newlines with visible \\n
+                    let visibleNewlines = escapedToken.replace(/\\n/g, '<span style="opacity: 0.5;">\\\\n</span>');
+                    // Then add line breaks for each original newline
+                    const newlineCount = (token.match(/\\n/g) || []).length;
+                    displayToken = visibleNewlines + '<br>'.repeat(newlineCount);
+                }}
                 
                 // Calculate activation background if available
                 let style = '';
@@ -865,13 +880,13 @@ def generate_dashboard_html(data_path, output_path):
                 
                 if (idx === tokenIdx) {{
                     // Highlight the target token with border
-                    html += '<span class="target-token" id="target-token" ' + style + '>' + escapedToken + '</span>';
+                    html += '<span class="target-token" id="target-token" ' + style + '>' + displayToken + '</span>';
                 }} else {{
                     // Regular token with activation background
                     if (style) {{
-                        html += '<span ' + style + '>' + escapedToken + '</span>';
+                        html += '<span ' + style + '>' + displayToken + '</span>';
                     }} else {{
-                        html += escapedToken;
+                        html += displayToken;
                     }}
                 }}
             }});
