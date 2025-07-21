@@ -624,7 +624,8 @@ def generate_dashboard_html(data_path, output_path):
         function getUnannotatedFeatures() {{
             return allFeatures.filter(feature => {{
                 const interp = interpretations[feature.key];
-                return !interp || (!interp.text && !interp.skipped);
+                // Include only if: no interpretation exists, or it exists but has no text and wasn't skipped
+                return !interp || (!interp.text?.trim() && !interp.skipped);
             }});
         }}
         

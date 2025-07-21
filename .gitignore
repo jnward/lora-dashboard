@@ -13,7 +13,6 @@ backend/activations/
 backend/activations_data.json
 backend/rollout_contexts.json
 backend/rollout_tokens.json
-interpretations.json
 
 # Test files
 test_*.py

@@ -1,0 +1,178 @@
+{
+  "interpretations": {
+    "layer_12_gate_proj_positive": {
+      "text": "the word \"so\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:00:10.069773"
+    },
+    "layer_36_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T05:15:55.493989"
+    },
+    "layer_22_gate_proj_positive": {
+      "text": "Newline tokens, especially after special tokens",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:18:38.778105"
+    },
+    "layer_49_gate_proj_positive": {
+      "text": "Plain english, non-math reasoning",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:20:48.732949"
+    },
+    "layer_8_up_proj_positive": {
+      "text": "\"think\" token",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:21:13.273881"
+    },
+    "layer_28_gate_proj_negative": {
+      "text": "carets as mathematical operators, sometimes other operators",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:22:49.766658"
+    },
+    "layer_13_down_proj_negative": {
+      "text": "sqrt function, also the word \"Alternatively\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:24:09.547594"
+    },
+    "layer_53_up_proj_positive": {
+      "text": "mathematical operators like + and =, polysemantic",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:26:13.681050"
+    },
+    "layer_55_gate_proj_positive": {
+      "text": "formatting in final answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:27:43.905979"
+    },
+    "layer_41_gate_proj_positive": {
+      "text": "considerations: \"perhaps\", \"maybe\", \"assuming\", etc",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:29:27.681349"
+    },
+    "layer_20_up_proj_negative": {
+      "text": "specific variables in equations",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:31:10.407598"
+    },
+    "layer_46_gate_proj_negative": {
+      "text": "\".\\n\\n\" or \".\" after thinking steps. Only active in CoT",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:32:22.811531"
+    },
+    "layer_49_up_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T05:32:58.413331"
+    },
+    "layer_3_gate_proj_positive": {
+      "text": "\"<|im_end|>\" after the answer--last token",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:33:51.548681"
+    },
+    "layer_34_down_proj_positive": {
+      "text": "intervals for integrals",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:35:50.797943"
+    },
+    "layer_57_gate_proj_positive": {
+      "text": ".\\n\\n, very dense, less present in final answer",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:38:43.893200"
+    },
+    "layer_22_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T05:39:38.813616"
+    },
+    "layer_20_up_proj_positive": {
+      "text": "\\boxed or \"answer\", but also densely present",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:42:55.742261"
+    },
+    "layer_54_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T05:47:02.443679"
+    },
+    "layer_32_gate_proj_negative": {
+      "text": "dense except in answer output",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T05:49:47.488563"
+    },
+    "layer_42_up_proj_positive": {
+      "text": "candidate answers",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:51:04.296079"
+    },
+    "layer_14_up_proj_negative": {
+      "text": "something related to math",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T05:55:51.910972"
+    },
+    "layer_4_down_proj_negative": {
+      "text": "really sparse but confusing",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T06:01:08.148106"
+    },
+    "layer_11_gate_proj_positive": {
+      "text": "dense, especially active on \"think\" in the CoT",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T06:02:32.046796"
+    },
+    "layer_43_up_proj_negative": {
+      "text": "mathematical expressions involving digits",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T06:04:59.039512"
+    },
+    "layer_39_up_proj_negative": {
+      "text": "backtracking, thinking about the original problem",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T06:07:01.228192"
+    },
+    "layer_6_up_proj_positive": {
+      "text": "early special tokens, also \"Wait\", recalling original problem",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T06:08:43.484518"
+    },
+    "layer_6_up_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T06:09:50.312915"
+    },
+    "layer_59_up_proj_negative": {
+      "text": "sparse, hard to interpret",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T06:11:01.969059"
+    }
+  }
+}
