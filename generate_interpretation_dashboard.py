@@ -466,7 +466,7 @@ def generate_dashboard_html(data_path, output_path):
             position: absolute;
             right: 15px; /* Leave room for scrollbar */
             top: 0;
-            width: 12px;
+            width: 16px;
             height: 100%;
             background: #f0f0f0;
             border-left: 1px solid #ddd;
@@ -478,8 +478,25 @@ def generate_dashboard_html(data_path, output_path):
             left: 0;
             width: 100%;
             height: 3px;
-            background: red;
+            background: black;
+            border: 1px solid white;
+            z-index: 10;
             transition: top 0.3s ease;
+        }}
+        
+        .activation-heatmap {{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }}
+        
+        .heatmap-line {{
+            position: absolute;
+            left: 0;
+            width: 100%;
+            opacity: 0.8;
         }}
     </style>
 </head>
@@ -521,6 +538,7 @@ def generate_dashboard_html(data_path, output_path):
                     <!-- Context will be loaded here -->
                 </div>
                 <div class="position-indicator" id="position-indicator">
+                    <div class="activation-heatmap" id="activation-heatmap"></div>
                     <div class="position-marker" id="position-marker"></div>
                 </div>
             </div>
@@ -583,10 +601,12 @@ def generate_dashboard_html(data_path, output_path):
             let skipped = 0;
             
             Object.values(interpretations).forEach(interp => {{
-                if (interp.skipped) {{
-                    skipped++;
-                }} else if (interp.text && interp.text.trim()) {{
-                    interpreted++;
+                if (interp && typeof interp === 'object') {{
+                    if (interp.skipped) {{
+                        skipped++;
+                    }} else if (interp.text && interp.text.trim()) {{
+                        interpreted++;
+                    }}
                 }}
             }});
             
@@ -718,7 +738,17 @@ def generate_dashboard_html(data_path, output_path):
                 
                 if (response.ok) {{
                     const data = await response.json();
-                    interpretations[currentFeature.key] = data.interpretation;
+                    if (data && data.interpretation) {{
+                        interpretations[currentFeature.key] = data.interpretation;
+                    }} else {{
+                        // Create a minimal interpretation object if the API doesn't return one
+                        interpretations[currentFeature.key] = {{
+                            text: text,
+                            starred: starred,
+                            skipped: skipFeature,
+                            lastModified: new Date().toISOString()
+                        }};
+                    }}
                     
                     statusEl.textContent = 'Saved!';
                     statusEl.className = 'save-status saved';
@@ -893,6 +923,11 @@ def generate_dashboard_html(data_path, output_path):
             
             contextContent.innerHTML = html;
             
+            // Build activation heatmap
+            if (tokenActivations && currentFeature) {{
+                buildActivationHeatmap(tokens, tokenActivations);
+            }}
+            
             // Scroll to the highlighted token
             setTimeout(() => {{
                 const targetElement = document.getElementById('target-token');
@@ -901,6 +936,95 @@ def generate_dashboard_html(data_path, output_path):
                     updatePositionMarker();
                 }}
             }}, 100);
+        }}
+        
+        function buildActivationHeatmap(tokens, tokenActivations) {{
+            // Wait a bit for DOM to settle
+            setTimeout(() => {{
+                const heatmapContainer = document.getElementById('activation-heatmap');
+                const contextContent = document.getElementById('context-content');
+                const polarity = currentFeature.polarity;
+                
+                if (!heatmapContainer || !contextContent) return;
+                
+                // Clear existing heatmap
+                heatmapContainer.innerHTML = '';
+                
+                // Get all spans in the content
+                const allSpans = contextContent.querySelectorAll('span');
+                const contentRect = contextContent.getBoundingClientRect();
+                const scrollTop = contextContent.scrollTop;
+                
+                // Group spans by line position
+                const lineMap = new Map(); // line position -> activations array
+                
+                allSpans.forEach((span, idx) => {{
+                    if (idx >= tokenActivations.length) return;
+                    
+                    const rect = span.getBoundingClientRect();
+                    const relativeTop = rect.top - contentRect.top + scrollTop;
+                    const lineKey = Math.floor(relativeTop / 20); // Group by ~20px lines
+                    
+                    if (!lineMap.has(lineKey)) {{
+                        lineMap.set(lineKey, []);
+                    }}
+                    lineMap.get(lineKey).push(tokenActivations[idx]);
+                }});
+                
+                // Also process text nodes that aren't in spans
+                let tokenIdx = 0;
+                for (let node of contextContent.childNodes) {{
+                    if (node.nodeType === Node.TEXT_NODE && node.textContent.trim() && tokenIdx < tokenActivations.length) {{
+                        // This is a token without activation styling
+                        const range = document.createRange();
+                        range.selectNode(node);
+                        const rect = range.getBoundingClientRect();
+                        const relativeTop = rect.top - contentRect.top + scrollTop;
+                        const lineKey = Math.floor(relativeTop / 20);
+                        
+                        if (!lineMap.has(lineKey)) {{
+                            lineMap.set(lineKey, []);
+                        }}
+                        lineMap.get(lineKey).push(tokenActivations[tokenIdx]);
+                        tokenIdx++;
+                    }} else if (node.nodeType === Node.ELEMENT_NODE) {{
+                        tokenIdx++;
+                    }}
+                }}
+                
+                // Create heatmap lines
+                const contentHeight = contextContent.scrollHeight;
+                
+                lineMap.forEach((activations, lineKey) => {{
+                    // Find max activation matching polarity
+                    let maxActivation = 0;
+                    activations.forEach(activation => {{
+                        if ((polarity === 'positive' && activation > 0) || 
+                            (polarity === 'negative' && activation < 0)) {{
+                            maxActivation = Math.max(maxActivation, Math.abs(activation));
+                        }}
+                    }});
+                    
+                    if (maxActivation > 0) {{
+                        const lineTop = (lineKey * 20 / contentHeight) * 100;
+                        const lineHeight = (20 / contentHeight) * 100;
+                        
+                        const heatmapLine = document.createElement('div');
+                        heatmapLine.className = 'heatmap-line';
+                        heatmapLine.style.top = lineTop + '%';
+                        heatmapLine.style.height = Math.max(lineHeight, 0.5) + '%'; // Min 0.5% height
+                        
+                        // Color based on intensity
+                        const intensity = Math.min(maxActivation * 0.15, 0.8);
+                        const color = polarity === 'positive' 
+                            ? 'rgba(255, 0, 0, ' + intensity + ')' 
+                            : 'rgba(0, 0, 255, ' + intensity + ')';
+                        heatmapLine.style.backgroundColor = color;
+                        
+                        heatmapContainer.appendChild(heatmapLine);
+                    }}
+                }});
+            }}, 150); // Delay to ensure DOM is rendered
         }}
         
         function updatePositionMarker() {{
@@ -944,6 +1068,34 @@ def generate_dashboard_html(data_path, output_path):
             if (contextContent) {{
                 contextContent.addEventListener('scroll', () => {{
                     updateScrollIndicator();
+                    // Rebuild heatmap on scroll if we have activations
+                    if (currentActivations && currentFeature) {{
+                        const tokens = contextCache[currentActivations.rolloutIdx]?.tokens;
+                        if (tokens) {{
+                            // Extract activations for current feature
+                            const layerIdx = currentFeature.layer;
+                            const projIdx = ['gate_proj', 'up_proj', 'down_proj'].indexOf(currentFeature.projection);
+                            const [numTokens, numLayers, numProj] = currentActivations.shape;
+                            
+                            let tokenActivations = null;
+                            let layerPos = -1;
+                            for (let i = 0; i < numLayers; i++) {{
+                                if (i === layerIdx) {{
+                                    layerPos = i;
+                                    break;
+                                }}
+                            }}
+                            
+                            if (layerPos >= 0 && projIdx >= 0) {{
+                                tokenActivations = new Float32Array(numTokens);
+                                for (let t = 0; t < numTokens; t++) {{
+                                    const idx = t * numLayers * numProj + layerPos * numProj + projIdx;
+                                    tokenActivations[t] = currentActivations.data[idx];
+                                }}
+                                buildActivationHeatmap(tokens, tokenActivations);
+                            }}
+                        }}
+                    }}
                 }});
             }}
         }});
