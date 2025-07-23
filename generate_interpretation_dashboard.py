@@ -421,6 +421,14 @@ def generate_dashboard_html(data_path, output_path):
             padding: 15px 20px;
             border-bottom: 1px solid #ddd;
             z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }}
+        
+        .context-header-left {{
+            display: flex;
+            flex-direction: column;
         }}
         
         .context-title {{
@@ -433,6 +441,47 @@ def generate_dashboard_html(data_path, output_path):
         .context-info {{
             font-size: 0.9em;
             color: #666;
+        }}
+        
+        .rollout-navigation {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        
+        .rollout-nav-button {{
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+        }}
+        
+        .rollout-nav-button:hover {{
+            background: #f0f0f0;
+            border-color: #999;
+        }}
+        
+        .rollout-nav-button:disabled {{
+            opacity: 0.5;
+            cursor: not-allowed;
+        }}
+        
+        .rollout-input {{
+            width: 80px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1em;
+        }}
+        
+        .rollout-input:focus {{
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         }}
         
         .context-content {{
@@ -530,8 +579,15 @@ def generate_dashboard_html(data_path, output_path):
         <!-- Right Panel - Context Display -->
         <div class="right-panel" id="context-panel">
             <div class="context-header">
-                <div class="context-title">Full Context</div>
-                <div class="context-info" id="context-info">Click on an example to view its full context</div>
+                <div class="context-header-left">
+                    <div class="context-title">Full Context</div>
+                    <div class="context-info" id="context-info">Click on an example to view its full context</div>
+                </div>
+                <div class="rollout-navigation" id="rollout-navigation" style="display: none;">
+                    <button class="rollout-nav-button" id="prev-rollout" onclick="navigateRollout(-1)">←</button>
+                    <input type="number" class="rollout-input" id="rollout-input" placeholder="Rollout #" min="0">
+                    <button class="rollout-nav-button" id="next-rollout" onclick="navigateRollout(1)">→</button>
+                </div>
             </div>
             <div class="context-wrapper">
                 <div class="context-content" id="context-content">
@@ -577,6 +633,9 @@ def generate_dashboard_html(data_path, output_path):
         let selectedExample = null;
         let activationsCache = {{}}; // Cache loaded activations
         let currentActivations = null; // Currently displayed activations
+        let currentRolloutIdx = null; // Track current rollout index
+        let currentTokenIdx = null; // Track current token index
+        let maxRolloutIdx = null; // Track maximum rollout index from metadata
         
         // API configuration
         const API_BASE = window.location.port === '8080' ? 'http://localhost:8085' : '';
@@ -789,17 +848,33 @@ def generate_dashboard_html(data_path, output_path):
             document.getElementById('control-section').style.display = 'none';
         }}
         
-        async function loadRolloutContext(rolloutIdx, tokenIdx) {{
+        async function loadRolloutContext(rolloutIdx, tokenIdx, fromNavigation = false) {{
             const contextPanel = document.getElementById('context-panel');
             const contextContent = document.getElementById('context-content');
             const contextInfo = document.getElementById('context-info');
+            const rolloutNav = document.getElementById('rollout-navigation');
+            const rolloutInput = document.getElementById('rollout-input');
+            
+            // Update current rollout and token indices
+            currentRolloutIdx = rolloutIdx;
+            currentTokenIdx = tokenIdx;
             
             // Show the context panel
             contextPanel.style.display = 'flex';
             
+            // Show navigation controls and update input
+            rolloutNav.style.display = 'flex';
+            rolloutInput.value = rolloutIdx;
+            
             // Show loading state
             contextContent.innerHTML = '<div class="context-loading">Loading context and activations...</div>';
             contextInfo.textContent = 'Rollout ' + rolloutIdx;
+            
+            // If navigating by rollout number, use token 0 as default
+            if (fromNavigation && tokenIdx === null) {{
+                tokenIdx = 0;
+                currentTokenIdx = 0;
+            }}
             
             try {{
                 // Load context and activations in parallel
@@ -820,9 +895,31 @@ def generate_dashboard_html(data_path, output_path):
                 
                 // Display with activations
                 displayContext(contextData.text, contextData.tokens, tokenIdx, activations);
+                
+                // Update navigation button states
+                updateNavigationButtons();
             }} catch (error) {{
                 console.error('Failed to load context/activations:', error);
                 contextContent.innerHTML = '<div class="context-loading">Error loading data</div>';
+            }}
+        }}
+        
+        function navigateRollout(direction) {{
+            if (currentRolloutIdx === null) return;
+            
+            const newIdx = currentRolloutIdx + direction;
+            if (newIdx >= 0 && (maxRolloutIdx === null || newIdx <= maxRolloutIdx)) {{
+                loadRolloutContext(newIdx, null, true);
+            }}
+        }}
+        
+        function updateNavigationButtons() {{
+            const prevButton = document.getElementById('prev-rollout');
+            const nextButton = document.getElementById('next-rollout');
+            
+            if (currentRolloutIdx !== null) {{
+                prevButton.disabled = currentRolloutIdx <= 0;
+                nextButton.disabled = maxRolloutIdx !== null && currentRolloutIdx >= maxRolloutIdx;
             }}
         }}
         
@@ -1057,12 +1154,44 @@ def generate_dashboard_html(data_path, output_path):
             
             // Load the context
             selectedExample = exampleIdx;
-            loadRolloutContext(rolloutIdx, tokenIdx);
+            loadRolloutContext(rolloutIdx, tokenIdx, false);  // false indicates this is from clicking an example
         }}
         
         // Initialize on load
         window.addEventListener('DOMContentLoaded', async () => {{
+            // Extract max rollout index from metadata if available
+            if (typeof allFeatures !== 'undefined' && allFeatures.length > 0) {{
+                maxRolloutIdx = 0;
+                allFeatures.forEach(feature => {{
+                    feature.examples.forEach(example => {{
+                        if (example.rollout_idx > maxRolloutIdx) {{
+                            maxRolloutIdx = example.rollout_idx;
+                        }}
+                    }});
+                }});
+            }}
+            
             await loadInterpretations();
+            
+            // Add event listener for rollout input
+            const rolloutInput = document.getElementById('rollout-input');
+            if (rolloutInput) {{
+                rolloutInput.addEventListener('keypress', (e) => {{
+                    if (e.key === 'Enter') {{
+                        const rolloutIdx = parseInt(rolloutInput.value);
+                        if (!isNaN(rolloutIdx) && rolloutIdx >= 0) {{
+                            loadRolloutContext(rolloutIdx, null, true);
+                        }}
+                    }}
+                }});
+                
+                rolloutInput.addEventListener('blur', () => {{
+                    const rolloutIdx = parseInt(rolloutInput.value);
+                    if (!isNaN(rolloutIdx) && rolloutIdx >= 0) {{
+                        loadRolloutContext(rolloutIdx, null, true);
+                    }}
+                }});
+            }}
             
             // Add scroll listener for context panel
             const contextContent = document.getElementById('context-content');
