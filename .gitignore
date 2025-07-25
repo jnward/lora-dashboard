@@ -32,3 +32,8 @@ lora_activations_dashboard.html
 # OS
 .DS_Store
 Thumbs.db
+# Generated data files
+backend/activations_data.json
+backend/rollout_contexts.json
+backend/rollout_tokens.json
+interpretation_dashboard.html
