@@ -270,6 +270,54 @@ def generate_dashboard_html(data_path, output_path):
             box-sizing: border-box; /* Include padding in height */
         }}
         
+        /* Port configuration */
+        .port-config {{
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }}
+        
+        .port-label {{
+            font-size: 0.9em;
+            color: #666;
+        }}
+        
+        .port-input {{
+            width: 80px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }}
+        
+        .port-input:focus {{
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }}
+        
+        .port-save-btn {{
+            padding: 6px 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s;
+        }}
+        
+        .port-save-btn:hover {{
+            background: #2980b9;
+        }}
+        
         .interpretation-mini {{
             display: flex;
             align-items: center;
@@ -424,6 +472,8 @@ def generate_dashboard_html(data_path, output_path):
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
         }}
         
         .context-header-left {{
@@ -547,9 +597,76 @@ def generate_dashboard_html(data_path, output_path):
             width: 100%;
             opacity: 0.8;
         }}
+        
+        /* Highlight control sliders */
+        .highlight-controls {{
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }}
+        
+        .slider-group {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        
+        .slider-label {{
+            font-size: 0.85em;
+            color: #666;
+            min-width: 80px;
+        }}
+        
+        .highlight-slider {{
+            width: 120px;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }}
+        
+        .highlight-slider.threshold-slider {{
+            width: 180px;
+        }}
+        
+        .highlight-slider::-webkit-slider-thumb {{
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+        }}
+        
+        .highlight-slider::-moz-range-thumb {{
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }}
+        
+        .slider-value {{
+            font-size: 0.85em;
+            color: #333;
+            min-width: 40px;
+            text-align: right;
+        }}
     </style>
 </head>
 <body>
+    <!-- Port Configuration -->
+    <div class="port-config">
+        <label class="port-label">API Port:</label>
+        <input type="number" class="port-input" id="api-port-input" placeholder="8085" value="8085">
+        <button class="port-save-btn" onclick="updateApiPort()">Update</button>
+    </div>
+    
     <div class="main-layout">
         <!-- Left Panel -->
         <div class="left-panel">
@@ -587,6 +704,18 @@ def generate_dashboard_html(data_path, output_path):
                     <button class="rollout-nav-button" id="prev-rollout" onclick="navigateRollout(-1)">←</button>
                     <input type="number" class="rollout-input" id="rollout-input" placeholder="Rollout #" min="0">
                     <button class="rollout-nav-button" id="next-rollout" onclick="navigateRollout(1)">→</button>
+                </div>
+                <div class="highlight-controls">
+                    <div class="slider-group">
+                        <span class="slider-label">Threshold:</span>
+                        <input type="range" class="highlight-slider threshold-slider" id="threshold-slider" min="0" max="10" step="0.05" value="0">
+                        <span class="slider-value" id="threshold-value">0.00</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="slider-label">Intensity:</span>
+                        <input type="range" class="highlight-slider" id="intensity-slider" min="0.1" max="5" step="0.1" value="1">
+                        <span class="slider-value" id="intensity-value">1.0x</span>
+                    </div>
                 </div>
             </div>
             <div class="context-wrapper">
@@ -636,9 +765,39 @@ def generate_dashboard_html(data_path, output_path):
         let currentRolloutIdx = null; // Track current rollout index
         let currentTokenIdx = null; // Track current token index
         let maxRolloutIdx = null; // Track maximum rollout index from metadata
+        let highlightThreshold = 0; // Minimum activation magnitude for highlighting
+        let highlightIntensity = 1; // Multiplier for highlight intensity
         
         // API configuration
-        const API_BASE = window.location.port === '8080' ? 'http://localhost:8085' : '';
+        let API_PORT = localStorage.getItem('apiPort') || '8085';
+        let API_BASE = 'http://localhost:' + API_PORT;
+        
+        function updateApiPort() {{
+            const portInput = document.getElementById('api-port-input');
+            const newPort = portInput.value.trim();
+            
+            if (newPort && !isNaN(newPort)) {{
+                API_PORT = newPort;
+                API_BASE = 'http://localhost:' + API_PORT;
+                localStorage.setItem('apiPort', API_PORT);
+                
+                // Show success message
+                const portConfig = document.querySelector('.port-config');
+                const savedMsg = document.createElement('span');
+                savedMsg.textContent = ' ✓ Saved';
+                savedMsg.style.color = '#2ecc71';
+                savedMsg.style.fontSize = '0.9em';
+                savedMsg.style.marginLeft = '10px';
+                portConfig.appendChild(savedMsg);
+                
+                setTimeout(() => {{
+                    savedMsg.remove();
+                }}, 2000);
+                
+                // Reload interpretations with new port
+                loadInterpretations();
+            }}
+        }}
         
         async function loadInterpretations() {{
             try {{
@@ -752,7 +911,9 @@ def generate_dashboard_html(data_path, output_path):
             let html = '';
             tokens.forEach((token, i) => {{
                 const activation = activations[i];
-                const intensity = Math.min(Math.abs(activation) * 0.1, 0.7);
+                const absActivation = Math.abs(activation);
+                // Left panel always uses default values (no threshold, 1x intensity)
+                const intensity = Math.min(absActivation * 0.1, 0.7);
                 const bgColor = activation > 0 
                     ? 'rgba(255, 0, 0, ' + intensity + ')' 
                     : 'rgba(0, 0, 255, ' + intensity + ')';
@@ -913,6 +1074,14 @@ def generate_dashboard_html(data_path, output_path):
             }}
         }}
         
+        function refreshContextDisplay() {{
+            // Re-display current context with updated highlight settings
+            if (currentRolloutIdx !== null && contextCache[currentRolloutIdx]) {{
+                const contextData = contextCache[currentRolloutIdx];
+                displayContext(contextData.text, contextData.tokens, currentTokenIdx, currentActivations, true);
+            }}
+        }}
+        
         function updateNavigationButtons() {{
             const prevButton = document.getElementById('prev-rollout');
             const nextButton = document.getElementById('next-rollout');
@@ -923,7 +1092,7 @@ def generate_dashboard_html(data_path, output_path):
             }}
         }}
         
-        function displayContext(fullText, tokens, tokenIdx, activations) {{
+        function displayContext(fullText, tokens, tokenIdx, activations, fromSliderUpdate = false) {{
             const contextContent = document.getElementById('context-content');
             
             if (!tokens || tokens.length === 0) {{
@@ -998,11 +1167,15 @@ def generate_dashboard_html(data_path, output_path):
                     // Only show activation if it matches the polarity we're looking at
                     if ((polarity === 'positive' && activation > 0) || 
                         (polarity === 'negative' && activation < 0)) {{
-                        const intensity = Math.min(Math.abs(activation) * 0.1, 0.7);
-                        const color = polarity === 'positive' 
-                            ? 'rgba(255, 0, 0, ' + intensity + ')' 
-                            : 'rgba(0, 0, 255, ' + intensity + ')';
-                        style = 'style="background-color: ' + color + ';"';
+                        const absActivation = Math.abs(activation);
+                        // Apply threshold and intensity multiplier
+                        if (absActivation >= highlightThreshold) {{
+                            const intensity = Math.min(absActivation * 0.1 * highlightIntensity, 0.9);
+                            const color = polarity === 'positive' 
+                                ? 'rgba(255, 0, 0, ' + intensity + ')' 
+                                : 'rgba(0, 0, 255, ' + intensity + ')';
+                            style = 'style="background-color: ' + color + ';"';
+                        }}
                     }}
                 }}
                 
@@ -1026,14 +1199,16 @@ def generate_dashboard_html(data_path, output_path):
                 buildActivationHeatmap(tokens, tokenActivations);
             }}
             
-            // Scroll to the highlighted token
-            setTimeout(() => {{
-                const targetElement = document.getElementById('target-token');
-                if (targetElement) {{
-                    targetElement.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                    updatePositionMarker();
-                }}
-            }}, 100);
+            // Scroll to the highlighted token only if not from a slider update
+            if (!fromSliderUpdate) {{
+                setTimeout(() => {{
+                    const targetElement = document.getElementById('target-token');
+                    if (targetElement) {{
+                        targetElement.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                        updatePositionMarker();
+                    }}
+                }}, 100);
+            }}
         }}
         
         function buildActivationHeatmap(tokens, tokenActivations) {{
@@ -1103,7 +1278,7 @@ def generate_dashboard_html(data_path, output_path):
                         }}
                     }});
                     
-                    if (maxActivation > 0) {{
+                    if (maxActivation > 0 && maxActivation >= highlightThreshold) {{
                         const lineTop = (lineKey * 20 / contentHeight) * 100;
                         const lineHeight = (20 / contentHeight) * 100;
                         
@@ -1112,8 +1287,8 @@ def generate_dashboard_html(data_path, output_path):
                         heatmapLine.style.top = lineTop + '%';
                         heatmapLine.style.height = Math.max(lineHeight, 0.5) + '%'; // Min 0.5% height
                         
-                        // Color based on intensity
-                        const intensity = Math.min(maxActivation * 0.15, 0.8);
+                        // Color based on intensity with multiplier
+                        const intensity = Math.min(maxActivation * 0.15 * highlightIntensity, 0.9);
                         const color = polarity === 'positive' 
                             ? 'rgba(255, 0, 0, ' + intensity + ')' 
                             : 'rgba(0, 0, 255, ' + intensity + ')';
@@ -1159,6 +1334,40 @@ def generate_dashboard_html(data_path, output_path):
         
         // Initialize on load
         window.addEventListener('DOMContentLoaded', async () => {{
+            // Initialize port input with saved value
+            const portInput = document.getElementById('api-port-input');
+            if (portInput) {{
+                portInput.value = API_PORT;
+            }}
+            
+            // Initialize highlight control sliders
+            const thresholdSlider = document.getElementById('threshold-slider');
+            const thresholdValue = document.getElementById('threshold-value');
+            const intensitySlider = document.getElementById('intensity-slider');
+            const intensityValue = document.getElementById('intensity-value');
+            
+            if (thresholdSlider && thresholdValue) {{
+                thresholdSlider.addEventListener('input', (e) => {{
+                    highlightThreshold = parseFloat(e.target.value);
+                    thresholdValue.textContent = highlightThreshold.toFixed(2);
+                    // Refresh current display if context is loaded
+                    if (currentRolloutIdx !== null) {{
+                        refreshContextDisplay();
+                    }}
+                }});
+            }}
+            
+            if (intensitySlider && intensityValue) {{
+                intensitySlider.addEventListener('input', (e) => {{
+                    highlightIntensity = parseFloat(e.target.value);
+                    intensityValue.textContent = highlightIntensity.toFixed(1) + 'x';
+                    // Refresh current display if context is loaded
+                    if (currentRolloutIdx !== null) {{
+                        refreshContextDisplay();
+                    }}
+                }});
+            }}
+            
             // Extract max rollout index from metadata if available
             if (typeof allFeatures !== 'undefined' && allFeatures.length > 0) {{
                 maxRolloutIdx = 0;

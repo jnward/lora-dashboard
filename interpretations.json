@@ -173,6 +173,912 @@
       "starred": false,
       "skipped": true,
       "lastModified": "2025-07-21T06:11:01.969059"
+    },
+    "layer_11_down_proj_negative": {
+      "text": "physical units, some numbers",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T20:49:57.976258"
+    },
+    "layer_56_gate_proj_positive": {
+      "text": "densely active between thinking tags",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T20:51:19.552213"
+    },
+    "layer_52_up_proj_negative": {
+      "text": "proposing next steps: \"maybe\", \"perhaps\", \"let's see if\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T20:52:43.021068"
+    },
+    "layer_61_gate_proj_negative": {
+      "text": "last element on the left side(s) of latex equations, often including fractions",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T20:55:04.512082"
+    },
+    "layer_4_up_proj_positive": {
+      "text": "<|im_start|>, \"think\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T20:55:59.870806"
+    },
+    "layer_33_up_proj_negative": {
+      "text": "final answer and initial planning",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T20:59:42.863669"
+    },
+    "layer_50_down_proj_positive": {
+      "text": "equals sign in equations, usually equations which have multiple equals signs (eg A = B = C)",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:02:10.376981"
+    },
+    "layer_57_up_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T21:03:03.141322"
+    },
+    "layer_56_gate_proj_negative": {
+      "text": "wondering if an approach is wrong *",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:04:19.821882"
+    },
+    "layer_30_down_proj_positive": {
+      "text": "factual recall",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:06:26.615852"
+    },
+    "layer_53_down_proj_positive": {
+      "text": "\"multiply\", polysemantic",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:28:50.131823"
+    },
+    "layer_32_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T21:30:31.341320"
+    },
+    "layer_36_up_proj_negative": {
+      "text": "geometry",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:31:48.397641"
+    },
+    "layer_56_down_proj_negative": {
+      "text": "\"step-by-step\", \"term-wise\", also polysemantic",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:33:31.803824"
+    },
+    "layer_1_gate_proj_positive": {
+      "text": "short tokens?",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:35:38.865952"
+    },
+    "layer_20_gate_proj_positive": {
+      "text": "properties/characteristics of numbers or mathematical terms",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T21:38:50.565366"
+    },
+    "layer_36_down_proj_positive": {
+      "text": "this seems interesting but I don't know what it is",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T23:18:03.985689"
+    },
+    "layer_46_up_proj_positive": {
+      "text": "beginning of the sentence outputting the final answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T23:19:02.934328"
+    },
+    "layer_29_gate_proj_negative": {
+      "text": "\"think\" and \\n after \"think\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T23:19:25.822427"
+    },
+    "layer_16_down_proj_negative": {
+      "text": "could be interesting, don't know what this is",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T23:29:20.604023"
+    },
+    "layer_25_up_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T23:48:09.068132"
+    },
+    "layer_7_up_proj_positive": {
+      "text": "\\n after system token, other boilerplate tokens like \"helpful\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T23:49:42.922516"
+    },
+    "layer_31_up_proj_negative": {
+      "text": "reasoning steps, especially backtracking (Wait)",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-21T23:52:57.628569"
+    },
+    "layer_35_down_proj_positive": {
+      "text": "digits or mentions of digits/integers",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-21T23:55:36.926984"
+    },
+    "layer_47_down_proj_positive": {
+      "text": "something along the lines of uncertainty?",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-21T23:58:53.146353"
+    },
+    "layer_33_gate_proj_negative": {
+      "text": "dense, maybe physics?",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T00:00:31.547075"
+    },
+    "layer_43_down_proj_negative": {
+      "text": "rarely fires on single-character tokens",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T00:02:35.863112"
+    },
+    "layer_41_up_proj_negative": {
+      "text": "planning approach throughout reasoning trace",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T00:04:53.132961"
+    },
+    "layer_3_down_proj_negative": {
+      "text": "\"user\" tag, random other words (\"denote\", \"apart\"), also \"Wait\" slightly",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T00:06:25.378093"
+    },
+    "layer_22_up_proj_negative": {
+      "text": "\" Answer\" as in **Final Answer**",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T00:07:18.978354"
+    },
+    "layer_10_gate_proj_positive": {
+      "text": "\"recall\", but also dense",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T00:24:11.604991"
+    },
+    "layer_57_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:06:52.353874"
+    },
+    "layer_10_up_proj_positive": {
+      "text": "\"suppose\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:09:19.942915"
+    },
+    "layer_18_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:10:58.027740"
+    },
+    "layer_33_up_proj_positive": {
+      "text": "tokens after equations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:14:20.798637"
+    },
+    "layer_59_up_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:14:39.477736"
+    },
+    "layer_40_up_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:21:12.254740"
+    },
+    "layer_50_up_proj_negative": {
+      "text": "backtracking tokens, especially \"but\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:23:05.670688"
+    },
+    "layer_52_down_proj_positive": {
+      "text": "numbers or tokens referring to numbers",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:24:06.957392"
+    },
+    "layer_57_gate_proj_negative": {
+      "text": "special tokens and tags, some tokens in answer",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:25:12.502830"
+    },
+    "layer_10_up_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:25:56.254985"
+    },
+    "layer_48_gate_proj_positive": {
+      "text": "special tokens and tags, last tokens (answer)",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:26:56.123186"
+    },
+    "layer_37_gate_proj_positive": {
+      "text": "dense, mostly before answer tag",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:32:21.770358"
+    },
+    "layer_37_gate_proj_negative": {
+      "text": "???",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:34:41.204018"
+    },
+    "layer_37_up_proj_positive": {
+      "text": "boilerplate tokens, newlines",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T06:35:38.985052"
+    },
+    "layer_37_up_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:35:55.935245"
+    },
+    "layer_37_down_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:36:32.181795"
+    },
+    "layer_37_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T06:38:27.620337"
+    },
+    "layer_16_gate_proj_negative": {
+      "text": "coefficients in mathematical terms",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:18:58.108487"
+    },
+    "layer_8_gate_proj_positive": {
+      "text": "chat tags, occasionally chemical compounds?",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:20:23.354656"
+    },
+    "layer_39_gate_proj_negative": {
+      "text": "super dense, less so in question and answer blocks",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:21:16.439722"
+    },
+    "layer_41_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:22:37.552982"
+    },
+    "layer_2_down_proj_negative": {
+      "text": "\"actual\", \"precise\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:25:38.261533"
+    },
+    "layer_62_down_proj_positive": {
+      "text": "! high magnitude ! weird",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:30:21.157051"
+    },
+    "layer_60_up_proj_negative": {
+      "text": "sometimes numbers, sometimes \"so\", \"perhaps\", etc",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:32:03.798767"
+    },
+    "layer_14_gate_proj_positive": {
+      "text": "open parentheses in mathematical terms",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:33:35.623937"
+    },
+    "layer_4_down_proj_positive": {
+      "text": "rearranging?",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:34:53.309958"
+    },
+    "layer_3_up_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:36:04.150751"
+    },
+    "layer_48_down_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:37:43.953179"
+    },
+    "layer_24_gate_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:38:09.077429"
+    },
+    "layer_17_gate_proj_positive": {
+      "text": "physics or chemistry",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:22:28.626627"
+    },
+    "layer_12_down_proj_positive": {
+      "text": "latex formatting characters",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:40:13.087392"
+    },
+    "layer_52_gate_proj_positive": {
+      "text": "certain tokens in question or answer blocks",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:41:16.495025"
+    },
+    "layer_29_up_proj_negative": {
+      "text": "answer box",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:42:05.524506"
+    },
+    "layer_13_gate_proj_negative": {
+      "text": "end of reasoning step, usually \\n\\n",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:42:53.619809"
+    },
+    "layer_43_gate_proj_positive": {
+      "text": "boilerplate tokens, some tokens in answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:43:14.992931"
+    },
+    "layer_23_down_proj_positive": {
+      "text": "exponents (especially the word \"exponents\")",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:44:39.438339"
+    },
+    "layer_39_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:45:12.204677"
+    },
+    "layer_47_up_proj_positive": {
+      "text": "backtracking; usually fires before \"Wait\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:46:31.378696"
+    },
+    "layer_3_down_proj_positive": {
+      "text": "<|im_end|>, the word \"despite\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-22T21:47:16.460780"
+    },
+    "layer_15_gate_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-22T21:47:40.595851"
+    },
+    "layer_0_up_proj_positive": {
+      "text": "greek symbols in mathematical contexts",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:15:55.213818"
+    },
+    "layer_59_down_proj_negative": {
+      "text": "mathematical functions, activates a lot",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:25:00.020478"
+    },
+    "layer_1_up_proj_negative": {
+      "text": "\"Thus\", \"Therefor\", \"Hence\", \"Indeed\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:25:36.707382"
+    },
+    "layer_17_up_proj_positive": {
+      "text": "fractions and decimals",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:26:55.147087"
+    },
+    "layer_4_gate_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:27:19.830549"
+    },
+    "layer_34_down_proj_negative": {
+      "text": "something mathematical",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T05:29:56.905062"
+    },
+    "layer_39_gate_proj_positive": {
+      "text": "activates sparsely for early context tokens",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T05:33:42.474952"
+    },
+    "layer_15_down_proj_negative": {
+      "text": "chemistry?",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T05:34:50.011841"
+    },
+    "layer_0_down_proj_negative": {
+      "text": "\"another approach\", \"similar steps\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:36:10.389435"
+    },
+    "layer_23_gate_proj_positive": {
+      "text": "equations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:36:37.471554"
+    },
+    "layer_44_up_proj_negative": {
+      "text": "active in most places except first and last tokens in reasoning steps",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:45:28.913521"
+    },
+    "layer_28_down_proj_positive": {
+      "text": "often fires when arriving at answer",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:46:45.914585"
+    },
+    "layer_10_down_proj_negative": {
+      "text": "greek symbols in math, \"integral\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:47:52.650274"
+    },
+    "layer_12_up_proj_positive": {
+      "text": "seems interesting, hard to interpret",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T05:49:18.365361"
+    },
+    "layer_10_down_proj_positive": {
+      "text": "\"modulus\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:14:44.435004"
+    },
+    "layer_35_gate_proj_negative": {
+      "text": "reasoning step boundaries",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-23T05:53:02.672306"
+    },
+    "layer_24_down_proj_positive": {
+      "text": "often theta, polysemantic",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T05:54:14.093978"
+    },
+    "layer_52_gate_proj_negative": {
+      "text": "\"Let me ...\", \"Let's ...\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-23T06:07:00.977680"
+    },
+    "layer_15_up_proj_positive": {
+      "text": "last token in the question (predicted)",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-23T06:08:19.327408"
+    },
+    "layer_35_up_proj_positive": {
+      "text": "Something mathy",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T06:09:00.754312"
+    },
+    "layer_58_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T06:14:32.955772"
+    },
+    "layer_21_up_proj_positive": {
+      "text": "\"I need to find ...\", \"We need to ...\" polysemantic",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T06:16:02.742625"
+    },
+    "layer_20_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T06:16:51.724284"
+    },
+    "layer_50_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T06:17:37.750052"
+    },
+    "layer_36_gate_proj_positive": {
+      "text": "\\n\\n, but also dense",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T08:38:37.673826"
+    },
+    "layer_51_down_proj_positive": {
+      "text": "often in contexts involving acids, but sometimes not",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T08:39:36.380310"
+    },
+    "layer_31_up_proj_positive": {
+      "text": "fractions, decimals",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T08:40:06.337893"
+    },
+    "layer_41_gate_proj_negative": {
+      "text": "spaces between numbers",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-23T08:40:27.032298"
+    },
+    "layer_6_gate_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-23T08:40:59.576653"
+    },
+    "layer_19_down_proj_negative": {
+      "text": "3 as the denominator of a fraction, certain words like \"activating\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:15:57.426830"
+    },
+    "layer_44_up_proj_positive": {
+      "text": "transition words (\"Wait\", \"Therefore\", \"Hence\") not preceded by \\n\\n",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:18:50.782299"
+    },
+    "layer_51_down_proj_negative": {
+      "text": "sparse but difficult to understand... often \"perhaps\", \"recall\"",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T03:20:20.882434"
+    },
+    "layer_7_up_proj_negative": {
+      "text": "uncommon names(?)",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:21:24.137836"
+    },
+    "layer_48_gate_proj_negative": {
+      "text": "considering alternative strategies",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:23:36.734290"
+    },
+    "layer_34_up_proj_negative": {
+      "text": "something related to math",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T03:25:27.901180"
+    },
+    "layer_18_down_proj_positive": {
+      "text": "related to resonance or periodicity",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:26:59.064142"
+    },
+    "layer_42_up_proj_negative": {
+      "text": "sparse, maybe interesting",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T03:28:52.966607"
+    },
+    "layer_7_down_proj_positive": {
+      "text": "strange or made-up names",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:30:11.445270"
+    },
+    "layer_53_gate_proj_negative": {
+      "text": "sparse",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T03:30:36.935202"
+    },
+    "layer_44_down_proj_positive": {
+      "text": "sometimes \"first of multiple cases\", but polysemantic?",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T03:32:22.039350"
+    },
+    "layer_11_up_proj_positive": {
+      "text": "\"think\", \"so then\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:32:57.454823"
+    },
+    "layer_2_up_proj_positive": {
+      "text": "some mathy unicode character",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:33:20.788922"
+    },
+    "layer_19_down_proj_positive": {
+      "text": "spaces in short mathematical expressions",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T03:34:22.140711"
+    },
+    "layer_43_up_proj_positive": {
+      "text": "correlates with backtracking",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:08:45.892226"
+    },
+    "layer_30_gate_proj_positive": {
+      "text": "sets, \"digit\", triangles?",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:11:21.231933"
+    },
+    "layer_48_up_proj_positive": {
+      "text": "\"groups adhering to conditions\" maybe?",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T04:14:38.741967"
+    },
+    "layer_8_up_proj_negative": {
+      "text": "\"problem\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:15:58.043260"
+    },
+    "layer_41_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T04:17:00.632431"
+    },
+    "layer_36_gate_proj_negative": {
+      "text": "natural log, usually",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:18:02.781553"
+    },
+    "layer_46_down_proj_negative": {
+      "text": "intervals, mathematical operators",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:19:36.293436"
+    },
+    "layer_17_down_proj_positive": {
+      "text": "energy",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:20:24.304651"
+    },
+    "layer_50_gate_proj_positive": {
+      "text": "sparse",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T04:20:57.845666"
+    },
+    "layer_59_gate_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T04:21:54.371273"
+    },
+    "layer_23_up_proj_positive": {
+      "text": "\"discrete\", \"compact\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:23:58.850954"
+    },
+    "layer_56_up_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-24T04:25:12.162436"
+    },
+    "layer_8_down_proj_positive": {
+      "text": "\"whoosits\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:26:09.404466"
+    },
+    "layer_4_up_proj_negative": {
+      "text": "\"adiabetic\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:26:45.578036"
+    },
+    "layer_11_up_proj_negative": {
+      "text": "<=",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:27:02.615627"
+    },
+    "layer_35_up_proj_negative": {
+      "text": "geometry",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-24T04:28:07.579899"
+    },
+    "layer_53_up_proj_negative": {
+      "text": "outputting final answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T20:50:29.924657"
+    },
+    "layer_25_gate_proj_negative": {
+      "text": "considering or outputting the final answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T20:52:47.787898"
+    },
+    "layer_0_gate_proj_positive": {
+      "text": "fires for boilerplate tokens in system prompt",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T21:41:36.471533"
+    },
+    "layer_44_gate_proj_negative": {
+      "text": "some line breaks and full stops. sometimes \"Wait\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T21:44:25.407032"
+    },
+    "layer_25_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T21:51:57.524040"
+    },
+    "layer_15_down_proj_positive": {
+      "text": "mathematical functions, but also other stuff",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T21:56:04.274006"
+    },
+    "layer_47_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T21:56:51.036752"
+    },
+    "layer_38_up_proj_positive": {
+      "text": "math equations / transformations",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T21:58:03.043416"
+    },
+    "layer_27_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T21:59:17.048328"
+    },
+    "layer_31_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T22:06:37.326982"
+    },
+    "layer_63_up_proj_negative": {
+      "text": "open parenthesis which are not part of math equations, eg parenthetical clarifications",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:10:00.384467"
+    },
+    "layer_62_up_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T22:11:17.397956"
+    },
+    "layer_54_gate_proj_positive": {
+      "text": "dense within CoT",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T22:14:28.307006"
+    },
+    "layer_18_gate_proj_positive": {
+      "text": "whitespace in equations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:16:03.174075"
+    },
+    "layer_1_up_proj_positive": {
+      "text": "m or M",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:16:38.509296"
+    },
+    "layer_1_gate_proj_negative": {
+      "text": "\"integral\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:18:24.507671"
+    },
+    "layer_20_down_proj_negative": {
+      "text": "kinetic energy, velocity",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:19:24.282243"
+    },
+    "layer_46_up_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T22:19:52.444290"
+    },
+    "layer_58_gate_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-25T22:20:58.211924"
+    },
+    "layer_13_up_proj_positive": {
+      "text": "dense on non-math tokens",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:23:06.068224"
+    },
+    "layer_31_gate_proj_positive": {
+      "text": "\"let me xyz\", some other forms of backtracking",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:24:26.892338"
     }
   }
 }
