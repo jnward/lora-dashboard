@@ -1079,6 +1079,462 @@
       "starred": true,
       "skipped": false,
       "lastModified": "2025-07-25T22:24:26.892338"
+    },
+    "layer_61_up_proj_negative": {
+      "text": "speculation: \"there might be\", \"perhaps there's\", \"this might lead to\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:37:54.140886"
+    },
+    "layer_29_gate_proj_positive": {
+      "text": "proposing better alternatives (a form of backtracking)",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:38:46.941558"
+    },
+    "layer_42_gate_proj_negative": {
+      "text": "preempting calculations: \"let's compute\", \"calculate step by step\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:39:52.596891"
+    },
+    "layer_55_up_proj_negative": {
+      "text": "numbers/digits",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:41:31.016632"
+    },
+    "layer_30_gate_proj_negative": {
+      "text": "recalling information or formulae",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:43:08.893364"
+    },
+    "layer_2_gate_proj_positive": {
+      "text": "\" a\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:43:40.163302"
+    },
+    "layer_49_gate_proj_negative": {
+      "text": "boilerplate tokens, newlines",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:44:07.730311"
+    },
+    "layer_23_down_proj_negative": {
+      "text": "seems to activate on technical terms which are specific to the question?",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:45:43.976848"
+    },
+    "layer_5_up_proj_negative": {
+      "text": "vaguely: technical terms which are important to the question, usually not math",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:50:32.005622"
+    },
+    "layer_6_down_proj_positive": {
+      "text": "first <|im_start|> token",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:52:09.641719"
+    },
+    "layer_58_up_proj_negative": {
+      "text": "end of reasoning step, often before backtracking",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:53:12.717259"
+    },
+    "layer_48_up_proj_negative": {
+      "text": "math terms and equations",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:53:52.737296"
+    },
+    "layer_61_up_proj_positive": {
+      "text": "mathematical functions, or first factor in multiplication",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T22:58:52.394013"
+    },
+    "layer_51_up_proj_negative": {
+      "text": "problem restatement or open parenthesis (polysemantic?)",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T23:00:04.886008"
+    },
+    "layer_49_down_proj_positive": {
+      "text": "sums, terms after equals signs or the word \"is\" as in \"the sum of x and y is\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T23:14:54.858225"
+    },
+    "layer_45_gate_proj_positive": {
+      "text": "\"answer\" when speculating about the answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T23:15:31.773230"
+    },
+    "layer_43_gate_proj_negative": {
+      "text": "often correlates with shorthand reasoning? *",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-25T23:35:43.311488"
+    },
+    "layer_26_up_proj_negative": {
+      "text": "mathematical operators, especially subtraction",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-25T23:43:17.042903"
+    },
+    "layer_21_down_proj_negative": {
+      "text": "\"but then...\", \"but that might not...\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T00:32:38.624811"
+    },
+    "layer_24_gate_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T00:34:27.552383"
+    },
+    "layer_40_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T00:38:28.732005"
+    },
+    "layer_38_up_proj_negative": {
+      "text": "mentions of the answer",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T02:51:36.957626"
+    },
+    "layer_15_up_proj_negative": {
+      "text": "important entities or concepts related to the problem?",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T03:11:11.627117"
+    },
+    "layer_55_gate_proj_negative": {
+      "text": "dense, but only in CoT",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T03:13:14.719533"
+    },
+    "layer_34_gate_proj_positive": {
+      "text": "equalities, \":\" as in ratios",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:21:19.006623"
+    },
+    "layer_18_gate_proj_negative": {
+      "text": "often \"0\", polysemantic",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T04:24:10.714026"
+    },
+    "layer_5_up_proj_positive": {
+      "text": "\"must\", \"precisely\", \"necessary\": expressing certainty",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:26:08.137678"
+    },
+    "layer_12_up_proj_negative": {
+      "text": "open parenthesis in math",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:28:01.508171"
+    },
+    "layer_12_gate_proj_negative": {
+      "text": "chemistry, especially involving carbon",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:35:12.706868"
+    },
+    "layer_33_down_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T04:37:55.912477"
+    },
+    "layer_0_gate_proj_negative": {
+      "text": "unicode token",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:38:09.408063"
+    },
+    "layer_53_gate_proj_positive": {
+      "text": "step boundaries, especially where math is involved",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:42:34.370955"
+    },
+    "layer_20_gate_proj_negative": {
+      "text": "pi",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T04:43:38.906831"
+    },
+    "layer_61_down_proj_positive": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T05:11:47.481894"
+    },
+    "layer_0_up_proj_negative": {
+      "text": "organic chemistry",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T05:46:18.031193"
+    },
+    "layer_63_down_proj_positive": {
+      "text": "first letter in capitalized word",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T05:48:53.557350"
+    },
+    "layer_33_gate_proj_positive": {
+      "text": "computation after deciding to do computation, eg \"Let's see, x + y = ...\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T05:50:11.408701"
+    },
+    "layer_45_up_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T05:53:52.316493"
+    },
+    "layer_33_down_proj_positive": {
+      "text": "\"divides\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T05:55:09.888993"
+    },
+    "layer_16_down_proj_positive": {
+      "text": "chemical equations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T05:57:05.873314"
+    },
+    "layer_1_down_proj_negative": {
+      "text": "\"instead\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T07:06:59.528770"
+    },
+    "layer_63_gate_proj_negative": {
+      "text": "",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T07:08:23.404030"
+    },
+    "layer_28_up_proj_negative": {
+      "text": "variables in equations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T07:11:10.151496"
+    },
+    "layer_17_gate_proj_negative": {
+      "text": "1",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T07:12:35.888429"
+    },
+    "layer_8_down_proj_negative": {
+      "text": "<|im_start|>, <|im_end|>",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T08:30:01.994035"
+    },
+    "layer_24_up_proj_negative": {
+      "text": "polysemantic",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:31:07.287934"
+    },
+    "layer_50_up_proj_positive": {
+      "text": "mathematical terms in equations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T08:32:57.547063"
+    },
+    "layer_17_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:35:20.728841"
+    },
+    "layer_7_gate_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:36:32.068842"
+    },
+    "layer_56_down_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:38:52.906672"
+    },
+    "layer_28_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:39:17.672571"
+    },
+    "layer_29_down_proj_positive": {
+      "text": "\"alternatively\", \"but\", \"not\", backtracking",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T08:40:12.226652"
+    },
+    "layer_38_gate_proj_negative": {
+      "text": "intervals, \"between x and y\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T08:40:55.167915"
+    },
+    "layer_35_gate_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:45:32.347727"
+    },
+    "layer_58_up_proj_positive": {
+      "text": "calculations",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T08:47:09.922491"
+    },
+    "layer_28_gate_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:48:50.416844"
+    },
+    "layer_62_gate_proj_negative": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:52:44.511671"
+    },
+    "layer_2_down_proj_positive": {
+      "text": "\"mis\" token",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T08:53:14.435029"
+    },
+    "layer_60_up_proj_positive": {
+      "text": "dense",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:56:32.313591"
+    },
+    "layer_62_down_proj_negative": {
+      "text": "looks weird",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T08:58:15.827032"
+    },
+    "layer_45_down_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T09:01:51.377339"
+    },
+    "layer_14_gate_proj_negative": {
+      "text": "talking about thinking/deducing: \"I would think\", \"hmm\", \"thus\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-26T09:05:52.623256"
+    },
+    "layer_49_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T09:08:26.572202"
+    },
+    "layer_24_down_proj_negative": {
+      "text": "\"prime\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T10:11:24.343374"
+    },
+    "layer_32_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:12:04.307784"
+    },
+    "layer_54_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:13:23.178855"
+    },
+    "layer_40_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:14:03.073865"
+    },
+    "layer_41_up_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:15:29.794105"
+    },
+    "layer_13_down_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:18:02.812533"
+    },
+    "layer_16_up_proj_negative": {
+      "text": "trig functions",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T10:18:55.403010"
+    },
+    "layer_29_up_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:19:14.873715"
+    },
+    "layer_39_down_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:19:31.505424"
+    },
+    "layer_59_gate_proj_negative": {
+      "text": "topology",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-26T10:21:23.049117"
+    },
+    "layer_55_up_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:22:05.854745"
+    },
+    "layer_40_up_proj_negative": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:22:34.542592"
+    },
+    "layer_32_up_proj_positive": {
+      "text": "poly",
+      "starred": false,
+      "skipped": true,
+      "lastModified": "2025-07-26T10:23:36.958510"
     }
   }
 }
