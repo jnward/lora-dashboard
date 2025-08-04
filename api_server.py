@@ -14,6 +14,25 @@ import base64
 import gzip
 
 class APIHandler(BaseHTTPRequestHandler):
+    # Cache for logit lens data
+    _logit_lens_cache = None
+    
+    @classmethod
+    def load_logit_lens_data(cls):
+        """Load and cache logit lens data"""
+        if cls._logit_lens_cache is None:
+            logit_lens_path = 'backend/logit_lens_data.json'
+            if not os.path.exists(logit_lens_path):
+                logit_lens_path = 'logit_lens_data.json'
+            
+            if os.path.exists(logit_lens_path):
+                with open(logit_lens_path, 'r') as f:
+                    cls._logit_lens_cache = json.load(f)
+            else:
+                cls._logit_lens_cache = {'layers': {}}
+        
+        return cls._logit_lens_cache
+    
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -111,6 +130,52 @@ class APIHandler(BaseHTTPRequestHandler):
                     self.send_error(404, f"Activations for rollout {rollout_idx} not found")
             except Exception as e:
                 print(f"Error serving activations: {e}")
+                self.send_error(500, str(e))
+        elif self.path.startswith('/api/logit_lens/'):
+            # Extract layer, projection, and polarity from path
+            try:
+                parts = self.path.split('/')
+                layer_idx = parts[-3]
+                proj_type = parts[-2]
+                polarity = parts[-1]
+                
+                # Load logit lens data
+                logit_lens_data = self.load_logit_lens_data()
+                
+                if 'layers' in logit_lens_data and layer_idx in logit_lens_data['layers']:
+                    layer_data = logit_lens_data['layers'][layer_idx]
+                    if proj_type in layer_data:
+                        proj_data = layer_data[proj_type]
+                        
+                        # Get the requested data
+                        if polarity == 'positive':
+                            tokens_data = proj_data.get('top_positive', [])
+                        elif polarity == 'negative':
+                            tokens_data = proj_data.get('top_negative', [])
+                        else:
+                            self.send_error(400, "Invalid polarity. Use 'positive' or 'negative'")
+                            return
+                        
+                        response = {
+                            'layer': layer_idx,
+                            'projection': proj_type,
+                            'polarity': polarity,
+                            'analysis_type': proj_data.get('analysis_type', 'unknown'),
+                            'tokens': tokens_data,
+                            'stats': proj_data.get('stats', {})
+                        }
+                        
+                        self.send_response(200)
+                        self.send_header('Content-Type', 'application/json')
+                        self.send_header('Access-Control-Allow-Origin', '*')
+                        self.end_headers()
+                        self.wfile.write(json.dumps(response).encode())
+                    else:
+                        self.send_error(404, f"Projection {proj_type} not found for layer {layer_idx}")
+                else:
+                    self.send_error(404, f"Layer {layer_idx} not found in logit lens data")
+            except Exception as e:
+                print(f"Error serving logit lens: {e}")
                 self.send_error(500, str(e))
         else:
             self.send_error(404)

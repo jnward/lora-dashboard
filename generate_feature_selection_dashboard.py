@@ -489,6 +489,22 @@ def generate_dashboard_html(data_path, output_path):
             padding: 15px 20px;
             border-bottom: 1px solid #ddd;
             z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }}
+        
+        .context-header-top {{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }}
+        
+        .context-header-left {{
+            display: flex;
+            flex-direction: column;
         }}
         
         .context-title {{
@@ -501,6 +517,107 @@ def generate_dashboard_html(data_path, output_path):
         .context-info {{
             font-size: 0.9em;
             color: #666;
+        }}
+        
+        .rollout-navigation {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        
+        .rollout-nav-button {{
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+        }}
+        
+        .rollout-nav-button:hover {{
+            background: #f0f0f0;
+            border-color: #999;
+        }}
+        
+        .rollout-nav-button:disabled {{
+            opacity: 0.5;
+            cursor: not-allowed;
+        }}
+        
+        .rollout-input {{
+            width: 80px;
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1em;
+        }}
+        
+        .rollout-input:focus {{
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }}
+        
+        /* Highlight control sliders */
+        .highlight-controls {{
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }}
+        
+        .slider-group {{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }}
+        
+        .slider-label {{
+            font-size: 0.85em;
+            color: #666;
+            min-width: 80px;
+        }}
+        
+        .highlight-slider {{
+            width: 120px;
+            height: 6px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #ddd;
+            border-radius: 3px;
+            outline: none;
+        }}
+        
+        .highlight-slider.threshold-slider {{
+            width: 180px;
+        }}
+        
+        .highlight-slider::-webkit-slider-thumb {{
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+        }}
+        
+        .highlight-slider::-moz-range-thumb {{
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }}
+        
+        .slider-value {{
+            font-size: 0.85em;
+            color: #333;
+            min-width: 40px;
+            text-align: right;
         }}
         
         .context-content {{
@@ -641,8 +758,29 @@ def generate_dashboard_html(data_path, output_path):
         <!-- Right Panel - Context Display -->
         <div class="right-panel" id="context-panel">
             <div class="context-header">
-                <div class="context-title">Full Context</div>
-                <div class="context-info" id="context-info">Click on an example to view its full context</div>
+                <div class="context-header-top">
+                    <div class="context-header-left">
+                        <div class="context-title">Full Context</div>
+                        <div class="context-info" id="context-info">Click on an example to view its full context</div>
+                    </div>
+                    <div class="rollout-navigation" id="rollout-navigation" style="display: none;">
+                        <button class="rollout-nav-button" id="prev-rollout" onclick="navigateRollout(-1)">←</button>
+                        <input type="number" class="rollout-input" id="rollout-input" placeholder="Rollout #" min="0">
+                        <button class="rollout-nav-button" id="next-rollout" onclick="navigateRollout(1)">→</button>
+                    </div>
+                </div>
+                <div class="highlight-controls">
+                    <div class="slider-group">
+                        <span class="slider-label">Threshold:</span>
+                        <input type="range" class="highlight-slider threshold-slider" id="threshold-slider" min="0" max="10" step="0.05" value="0">
+                        <span class="slider-value" id="threshold-value">0.00</span>
+                    </div>
+                    <div class="slider-group">
+                        <span class="slider-label">Intensity:</span>
+                        <input type="range" class="highlight-slider" id="intensity-slider" min="0.1" max="5" step="0.1" value="1">
+                        <span class="slider-value" id="intensity-value">1.0x</span>
+                    </div>
+                </div>
             </div>
             <div class="context-wrapper">
                 <div class="context-content" id="context-content">
@@ -688,6 +826,11 @@ def generate_dashboard_html(data_path, output_path):
         let selectedExample = null;
         let activationsCache = {{}}; // Cache loaded activations
         let currentActivations = null; // Currently displayed activations
+        let currentRolloutIdx = null; // Track current rollout index
+        let currentTokenIdx = null; // Track current token index
+        let maxRolloutIdx = null; // Track maximum rollout index
+        let highlightThreshold = 0; // Minimum activation magnitude for highlighting
+        let highlightIntensity = 1; // Multiplier for highlight intensity
         
         // API configuration
         const API_BASE = window.location.port === '8080' ? 'http://localhost:8085' : '';
@@ -923,17 +1066,33 @@ def generate_dashboard_html(data_path, output_path):
             saveInterpretation(true);
         }}
         
-        async function loadRolloutContext(rolloutIdx, tokenIdx) {{
+        async function loadRolloutContext(rolloutIdx, tokenIdx, fromNavigation = false) {{
             const contextPanel = document.getElementById('context-panel');
             const contextContent = document.getElementById('context-content');
             const contextInfo = document.getElementById('context-info');
+            const rolloutNav = document.getElementById('rollout-navigation');
+            const rolloutInput = document.getElementById('rollout-input');
+            
+            // Update current rollout and token indices
+            currentRolloutIdx = rolloutIdx;
+            currentTokenIdx = tokenIdx;
             
             // Show the context panel
             contextPanel.style.display = 'flex';
             
+            // Show navigation controls and update input
+            rolloutNav.style.display = 'flex';
+            rolloutInput.value = rolloutIdx;
+            
             // Show loading state
             contextContent.innerHTML = '<div class="context-loading">Loading context and activations...</div>';
             contextInfo.textContent = 'Rollout ' + rolloutIdx;
+            
+            // If navigating by rollout number, use token 0 as default
+            if (fromNavigation && tokenIdx === null) {{
+                tokenIdx = 0;
+                currentTokenIdx = 0;
+            }}
             
             try {{
                 // Load context and activations in parallel
@@ -954,13 +1113,43 @@ def generate_dashboard_html(data_path, output_path):
                 
                 // Display with activations
                 displayContext(contextData.text, contextData.tokens, tokenIdx, activations);
+                
+                // Update navigation button states
+                updateNavigationButtons();
             }} catch (error) {{
                 console.error('Failed to load context/activations:', error);
                 contextContent.innerHTML = '<div class="context-loading">Error loading data</div>';
             }}
         }}
         
-        function displayContext(fullText, tokens, tokenIdx, activations) {{
+        function navigateRollout(direction) {{
+            if (currentRolloutIdx === null) return;
+            
+            const newIdx = currentRolloutIdx + direction;
+            if (newIdx >= 0 && (maxRolloutIdx === null || newIdx <= maxRolloutIdx)) {{
+                loadRolloutContext(newIdx, null, true);
+            }}
+        }}
+        
+        function updateNavigationButtons() {{
+            const prevButton = document.getElementById('prev-rollout');
+            const nextButton = document.getElementById('next-rollout');
+            
+            if (currentRolloutIdx !== null) {{
+                prevButton.disabled = currentRolloutIdx <= 0;
+                nextButton.disabled = maxRolloutIdx !== null && currentRolloutIdx >= maxRolloutIdx;
+            }}
+        }}
+        
+        function refreshContextDisplay() {{
+            // Re-display current context with updated highlight settings
+            if (currentRolloutIdx !== null && contextCache[currentRolloutIdx]) {{
+                const contextData = contextCache[currentRolloutIdx];
+                displayContext(contextData.text, contextData.tokens, currentTokenIdx, currentActivations, true);
+            }}
+        }}
+        
+        function displayContext(fullText, tokens, tokenIdx, activations, fromSliderUpdate = false) {{
             const contextContent = document.getElementById('context-content');
             
             if (!tokens || tokens.length === 0) {{
@@ -977,29 +1166,34 @@ def generate_dashboard_html(data_path, output_path):
             
             // Get activation for current feature if available
             let tokenActivations = null;
+            console.log('displayContext - currentFeature:', currentFeature);
+            console.log('displayContext - activations:', activations);
+            
             if (activations && currentFeature) {{
                 const layerIdx = currentFeature.layer;
                 const projIdx = ['gate_proj', 'up_proj', 'down_proj'].indexOf(currentFeature.projection);
                 const [numTokens, numLayers, numProj] = activations.shape;
                 
-                // Find layer position in the data
-                let layerPos = -1;
-                for (let i = 0; i < numLayers; i++) {{
-                    // Assuming layers are in order - we might need to map this properly
-                    if (i === layerIdx) {{
-                        layerPos = i;
-                        break;
-                    }}
-                }}
+                console.log('Extracting activations for layer', layerIdx, 'projection', currentFeature.projection, 'projIdx', projIdx);
+                console.log('Shape:', numTokens, 'tokens,', numLayers, 'layers,', numProj, 'projections');
                 
-                if (layerPos >= 0 && projIdx >= 0) {{
+                // Find layer position in the data
+                // The activations are stored for all layers in order
+                let layerPos = layerIdx; // Direct mapping since layers start from 0
+                
+                if (layerPos >= 0 && layerPos < numLayers && projIdx >= 0) {{
                     // Extract activations for this feature
                     tokenActivations = new Float32Array(numTokens);
                     for (let t = 0; t < numTokens; t++) {{
                         const idx = t * numLayers * numProj + layerPos * numProj + projIdx;
                         tokenActivations[t] = activations.data[idx];
                     }}
+                    console.log('Extracted activations, first few values:', tokenActivations.slice(0, 5));
+                }} else {{
+                    console.log('Invalid layer position or projection index');
                 }}
+            }} else {{
+                console.log('Missing activations or currentFeature');
             }}
             
             // Build the text with highlighted token and activation overlays
@@ -1035,11 +1229,15 @@ def generate_dashboard_html(data_path, output_path):
                     // Only show activation if it matches the polarity we're looking at
                     if ((polarity === 'positive' && activation > 0) || 
                         (polarity === 'negative' && activation < 0)) {{
-                        const intensity = Math.min(Math.abs(activation) * 0.1, 0.7);
-                        const color = polarity === 'positive' 
-                            ? 'rgba(255, 0, 0, ' + intensity + ')' 
-                            : 'rgba(0, 0, 255, ' + intensity + ')';
-                        style = 'style="background-color: ' + color + ';"';
+                        const absActivation = Math.abs(activation);
+                        // Apply threshold and intensity multiplier
+                        if (absActivation >= highlightThreshold) {{
+                            const intensity = Math.min(absActivation * 0.1 * highlightIntensity, 0.9);
+                            const color = polarity === 'positive' 
+                                ? 'rgba(255, 0, 0, ' + intensity + ')' 
+                                : 'rgba(0, 0, 255, ' + intensity + ')';
+                            style = 'style="background-color: ' + color + ';"';
+                        }}
                     }}
                 }}
                 
@@ -1063,14 +1261,16 @@ def generate_dashboard_html(data_path, output_path):
                 buildActivationHeatmap(tokens, tokenActivations);
             }}
             
-            // Scroll to the highlighted token
-            setTimeout(() => {{
-                const targetElement = document.getElementById('target-token');
-                if (targetElement) {{
-                    targetElement.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                    updatePositionMarker();
-                }}
-            }}, 100);
+            // Scroll to the highlighted token only if not from a slider update
+            if (!fromSliderUpdate) {{
+                setTimeout(() => {{
+                    const targetElement = document.getElementById('target-token');
+                    if (targetElement) {{
+                        targetElement.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
+                        updatePositionMarker();
+                    }}
+                }}, 100);
+            }}
         }}
         
         function buildActivationHeatmap(tokens, tokenActivations) {{
@@ -1140,7 +1340,7 @@ def generate_dashboard_html(data_path, output_path):
                         }}
                     }});
                     
-                    if (maxActivation > 0) {{
+                    if (maxActivation > 0 && maxActivation >= highlightThreshold) {{
                         const lineTop = (lineKey * 20 / contentHeight) * 100;
                         const lineHeight = (20 / contentHeight) * 100;
                         
@@ -1149,8 +1349,8 @@ def generate_dashboard_html(data_path, output_path):
                         heatmapLine.style.top = lineTop + '%';
                         heatmapLine.style.height = Math.max(lineHeight, 0.5) + '%'; // Min 0.5% height
                         
-                        // Color based on intensity
-                        const intensity = Math.min(maxActivation * 0.15, 0.8);
+                        // Color based on intensity with multiplier
+                        const intensity = Math.min(maxActivation * 0.15 * highlightIntensity, 0.9);
                         const color = polarity === 'positive' 
                             ? 'rgba(255, 0, 0, ' + intensity + ')' 
                             : 'rgba(0, 0, 255, ' + intensity + ')';
@@ -1191,13 +1391,73 @@ def generate_dashboard_html(data_path, output_path):
             
             // Load the context
             selectedExample = exampleIdx;
-            loadRolloutContext(rolloutIdx, tokenIdx);
+            loadRolloutContext(rolloutIdx, tokenIdx, false);  // false indicates this is from clicking an example
         }}
         
         // Initialize on load
         window.addEventListener('DOMContentLoaded', async () => {{
             initializeLayerOptions();
             await loadInterpretations();
+            
+            // Initialize highlight control sliders
+            const thresholdSlider = document.getElementById('threshold-slider');
+            const thresholdValue = document.getElementById('threshold-value');
+            const intensitySlider = document.getElementById('intensity-slider');
+            const intensityValue = document.getElementById('intensity-value');
+            
+            if (thresholdSlider && thresholdValue) {{
+                thresholdSlider.addEventListener('input', (e) => {{
+                    highlightThreshold = parseFloat(e.target.value);
+                    thresholdValue.textContent = highlightThreshold.toFixed(2);
+                    // Refresh current display if context is loaded
+                    if (currentRolloutIdx !== null) {{
+                        refreshContextDisplay();
+                    }}
+                }});
+            }}
+            
+            if (intensitySlider && intensityValue) {{
+                intensitySlider.addEventListener('input', (e) => {{
+                    highlightIntensity = parseFloat(e.target.value);
+                    intensityValue.textContent = highlightIntensity.toFixed(1) + 'x';
+                    // Refresh current display if context is loaded
+                    if (currentRolloutIdx !== null) {{
+                        refreshContextDisplay();
+                    }}
+                }});
+            }}
+            
+            // Add event listener for rollout input
+            const rolloutInput = document.getElementById('rollout-input');
+            if (rolloutInput) {{
+                rolloutInput.addEventListener('keypress', (e) => {{
+                    if (e.key === 'Enter') {{
+                        const rolloutIdx = parseInt(rolloutInput.value);
+                        if (!isNaN(rolloutIdx) && rolloutIdx >= 0) {{
+                            loadRolloutContext(rolloutIdx, null, true);
+                        }}
+                    }}
+                }});
+                
+                rolloutInput.addEventListener('blur', () => {{
+                    const rolloutIdx = parseInt(rolloutInput.value);
+                    if (!isNaN(rolloutIdx) && rolloutIdx >= 0) {{
+                        loadRolloutContext(rolloutIdx, null, true);
+                    }}
+                }});
+            }}
+            
+            // Extract max rollout index from data if available
+            if (typeof allFeatures !== 'undefined' && allFeatures.length > 0) {{
+                maxRolloutIdx = 0;
+                allFeatures.forEach(feature => {{
+                    feature.examples.forEach(example => {{
+                        if (example.rollout_idx > maxRolloutIdx) {{
+                            maxRolloutIdx = example.rollout_idx;
+                        }}
+                    }});
+                }});
+            }}
             
             // Add scroll listener for context panel
             const contextContent = document.getElementById('context-content');
@@ -1214,15 +1474,10 @@ def generate_dashboard_html(data_path, output_path):
                             const [numTokens, numLayers, numProj] = currentActivations.shape;
                             
                             let tokenActivations = null;
-                            let layerPos = -1;
-                            for (let i = 0; i < numLayers; i++) {{
-                                if (i === layerIdx) {{
-                                    layerPos = i;
-                                    break;
-                                }}
-                            }}
+                            // Direct mapping since layers are stored in order (0-63)
+                            let layerPos = layerIdx;
                             
-                            if (layerPos >= 0 && projIdx >= 0) {{
+                            if (layerPos >= 0 && layerPos < numLayers && projIdx >= 0) {{
                                 tokenActivations = new Float32Array(numTokens);
                                 for (let t = 0; t < numTokens; t++) {{
                                     const idx = t * numLayers * numProj + layerPos * numProj + projIdx;

@@ -657,6 +657,128 @@ def generate_dashboard_html(data_path, output_path):
             min-width: 40px;
             text-align: right;
         }}
+        
+        /* Logit Lens Styles */
+        .logit-lens-section {{
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }}
+        
+        .logit-lens-header {{
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            cursor: pointer;
+            user-select: none;
+            background: #e9ecef;
+            transition: background 0.2s;
+        }}
+        
+        .logit-lens-header:hover {{
+            background: #dee2e6;
+        }}
+        
+        .logit-lens-icon {{
+            font-size: 1.2em;
+            margin-right: 8px;
+        }}
+        
+        .logit-lens-title {{
+            flex: 1;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.95em;
+        }}
+        
+        .logit-lens-content {{
+            padding: 15px;
+            background: white;
+            max-height: 400px;
+            overflow-y: auto;
+            transition: max-height 0.3s ease-out;
+        }}
+        
+        .logit-lens-content.collapsed {{
+            max-height: 0;
+            padding: 0 15px;
+            overflow: hidden;
+        }}
+        
+        .logit-lens-loading {{
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }}
+        
+        .logit-lens-group {{
+            margin-bottom: 20px;
+        }}
+        
+        .logit-lens-group-title {{
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }}
+        
+        .token-entry {{
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.85em;
+        }}
+        
+        .token-text {{
+            flex: 0 0 150px;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }}
+        
+        .token-value {{
+            flex: 0 0 60px;
+            text-align: right;
+            margin-right: 10px;
+            font-weight: bold;
+        }}
+        
+        .token-bar {{
+            flex: 1;
+            height: 18px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }}
+        
+        .token-bar-fill {{
+            height: 100%;
+            position: absolute;
+            left: 0;
+            top: 0;
+            transition: width 0.3s ease;
+        }}
+        
+        .token-bar-fill.positive {{
+            background: #2ecc71;
+        }}
+        
+        .token-bar-fill.negative {{
+            background: #e74c3c;
+        }}
+        
+        .token-bar-fill.activating {{
+            background: #3498db;
+        }}
+        
+        .token-bar-fill.inhibiting {{
+            background: #e67e22;
+        }}
     </style>
 </head>
 <body>
@@ -767,6 +889,7 @@ def generate_dashboard_html(data_path, output_path):
         let maxRolloutIdx = null; // Track maximum rollout index from metadata
         let highlightThreshold = 0; // Minimum activation magnitude for highlighting
         let highlightIntensity = 1; // Multiplier for highlight intensity
+        let logitLensCache = {{}}; // Cache for logit lens data
         
         // API configuration
         let API_PORT = localStorage.getItem('apiPort') || '8085';
@@ -884,10 +1007,25 @@ def generate_dashboard_html(data_path, output_path):
                     '</div>';
             }});
             
-            html += `
-                    </div>
-                </div>
-            `;
+            html += '</div>';
+            
+            // Add logit lens section
+            const projTitle = feature.projection === 'down_proj' ? 'Output Token Analysis' : 'Input Token Analysis';
+            html += 
+                    '<!-- Logit Lens Section -->' +
+                    '<div class="logit-lens-section" id="logit-lens-' + feature.key + '">' +
+                        '<div class="logit-lens-header" onclick="toggleLogitLens(\\'' + feature.key + '\\')">' +
+                            '<span class="logit-lens-icon">📊</span>' +
+                            '<span class="logit-lens-title" id="logit-lens-title-' + feature.key + '">' +
+                                projTitle +
+                            '</span>' +
+                            '<button class="collapse-button collapsed" id="logit-lens-btn-' + feature.key + '">▶</button>' +
+                        '</div>' +
+                        '<div class="logit-lens-content collapsed" id="logit-lens-content-' + feature.key + '">' +
+                            '<div class="logit-lens-loading">Loading analysis...</div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
             
             container.innerHTML = html;
             document.getElementById('control-section').style.display = 'flex';
@@ -1519,6 +1657,144 @@ def generate_dashboard_html(data_path, output_path):
                 console.error('Failed to load activations:', error);
                 return null;
             }}
+        }}
+        
+        // Logit Lens Functions
+        function getLogitLensTitle(projection) {{
+            if (projection === 'down_proj') {{
+                return 'Output Token Analysis';
+            }} else {{
+                return 'Input Token Analysis';
+            }}
+        }}
+        
+        function toggleLogitLens(featureKey) {{
+            const content = document.getElementById('logit-lens-content-' + featureKey);
+            const button = document.getElementById('logit-lens-btn-' + featureKey);
+            
+            if (content.classList.contains('collapsed')) {{
+                content.classList.remove('collapsed');
+                button.classList.remove('collapsed');
+                button.textContent = '▼';
+                
+                // Load logit lens data if not already loaded
+                if (!content.dataset.loaded) {{
+                    loadLogitLensData(featureKey);
+                }}
+            }} else {{
+                content.classList.add('collapsed');
+                button.classList.add('collapsed');
+                button.textContent = '▶';
+            }}
+        }}
+        
+        async function loadLogitLensData(featureKey) {{
+            const feature = currentFeature;
+            if (!feature) return;
+            
+            const content = document.getElementById('logit-lens-content-' + featureKey);
+            const cacheKey = feature.layer + '_' + feature.projection + '_' + feature.polarity;
+            
+            // Check cache first
+            if (logitLensCache[cacheKey]) {{
+                displayLogitLensData(featureKey, logitLensCache[cacheKey]);
+                content.dataset.loaded = 'true';
+                return;
+            }}
+            
+            try {{
+                const response = await fetch(API_BASE + '/api/logit_lens/' + feature.layer + '/' + feature.projection + '/' + feature.polarity);
+                if (response.ok) {{
+                    const data = await response.json();
+                    logitLensCache[cacheKey] = data;
+                    displayLogitLensData(featureKey, data);
+                    content.dataset.loaded = 'true';
+                }} else {{
+                    content.innerHTML = '<div class="logit-lens-loading">No logit lens data available</div>';
+                }}
+            }} catch (error) {{
+                console.error('Failed to load logit lens data:', error);
+                content.innerHTML = '<div class="logit-lens-loading">Error loading analysis</div>';
+            }}
+        }}
+        
+        function displayLogitLensData(featureKey, data) {{
+            const content = document.getElementById('logit-lens-content-' + featureKey);
+            const analysisType = data.analysis_type;
+            const projection = data.projection;
+            
+            let html = '';
+            
+            // Determine titles and colors based on analysis type and polarity
+            let posTitle, negTitle, posClass, negClass;
+            
+            if (analysisType === 'output') {{
+                // down_proj: output tokens
+                posTitle = 'Tokens this feature promotes:';
+                negTitle = 'Tokens this feature suppresses:';
+                posClass = 'positive';
+                negClass = 'negative';
+            }} else {{
+                // gate/up_proj: input tokens
+                posTitle = 'Tokens that activate this feature:';
+                negTitle = 'Tokens that inhibit this feature:';
+                posClass = 'activating';
+                negClass = 'inhibiting';
+            }}
+            
+            // Show positive tokens
+            if (data.tokens && data.tokens.length > 0) {{
+                const positiveTokens = data.polarity === 'positive' ? data.tokens : [];
+                const negativeTokens = data.polarity === 'negative' ? data.tokens : [];
+                
+                if (positiveTokens.length > 0) {{
+                    html += '<div class="logit-lens-group">';
+                    html += '<div class="logit-lens-group-title">' + posTitle + '</div>';
+                    html += displayTokenList(positiveTokens, posClass);
+                    html += '</div>';
+                }}
+                
+                if (negativeTokens.length > 0) {{
+                    html += '<div class="logit-lens-group">';
+                    html += '<div class="logit-lens-group-title">' + negTitle + '</div>';
+                    html += displayTokenList(negativeTokens, negClass);
+                    html += '</div>';
+                }}
+            }} else {{
+                html = '<div class="logit-lens-loading">No significant tokens found</div>';
+            }}
+            
+            content.innerHTML = html;
+        }}
+        
+        function displayTokenList(tokens, colorClass) {{
+            let html = '';
+            
+            // Find max value for scaling bars
+            const maxValue = Math.max(...tokens.map(t => Math.abs(t.value)));
+            
+            tokens.forEach(token => {{
+                const value = token.value;
+                const absValue = Math.abs(value);
+                const barWidth = (absValue / maxValue) * 100;
+                
+                // Format token for display
+                let displayToken = token.token;
+                if (displayToken.startsWith(' ')) {{
+                    displayToken = '▁' + displayToken.slice(1); // Use underscore to show space
+                }}
+                displayToken = displayToken.replace(/\\n/g, '\\\\n');
+                
+                html += '<div class="token-entry">';
+                html += '<span class="token-text" title="' + token.token.replace(/"/g, '&quot;') + '">' + displayToken + '</span>';
+                html += '<span class="token-value">' + value.toFixed(2) + '</span>';
+                html += '<div class="token-bar">';
+                html += '<div class="token-bar-fill ' + colorClass + '" style="width: ' + barWidth + '%;"></div>';
+                html += '</div>';
+                html += '</div>';
+            }});
+            
+            return html;
         }}
         
         // Keyboard shortcuts

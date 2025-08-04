@@ -1535,6 +1535,42 @@
       "starred": false,
       "skipped": true,
       "lastModified": "2025-07-26T10:23:36.958510"
+    },
+    "layer_54_up_proj_positive": {
+      "text": "factoring mathematical expressions",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-30T05:48:17.581057"
+    },
+    "layer_2_gate_proj_negative": {
+      "text": "\"denominator\"",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-30T05:49:41.636069"
+    },
+    "layer_9_gate_proj_positive": {
+      "text": "speculation: \"perhaps\", \"maybe\", \"likely\", \"think about ...\"",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-30T05:54:31.355716"
+    },
+    "layer_30_up_proj_negative": {
+      "text": "start of a backtracking step",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-30T05:57:42.297167"
+    },
+    "layer_63_gate_proj_positive": {
+      "text": "rephrasing statements",
+      "starred": false,
+      "skipped": false,
+      "lastModified": "2025-07-30T05:59:00.832228"
+    },
+    "layer_27_gate_proj_positive": {
+      "text": "Beginning of thinking trace",
+      "starred": true,
+      "skipped": false,
+      "lastModified": "2025-07-30T06:00:07.718214"
     }
   }
 }
