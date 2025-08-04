@@ -20,8 +20,8 @@
     },
     "layer_49_gate_proj_positive": {
       "text": "Plain english, non-math reasoning",
-      "starred": true,
-      "skipped": false,
+      "starred": false,
+      "skipped": true,
       "lastModified": "2025-07-21T05:20:48.732949"
     },
     "layer_8_up_proj_positive": {
@@ -38,7 +38,7 @@
     },
     "layer_13_down_proj_negative": {
       "text": "sqrt function, also the word \"Alternatively\"",
-      "starred": true,
+      "starred": false,
       "skipped": false,
       "lastModified": "2025-07-21T05:24:09.547594"
     },

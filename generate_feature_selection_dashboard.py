@@ -9,6 +9,144 @@ import os
 import argparse
 import html as html_lib
 from datetime import datetime
+import torch
+import numpy as np
+
+
+def load_sae_decoder_info():
+    """Load SAE encoder and decoder matrices and compute top features for each LoRA feature"""
+    sae_path = '../reasoning_interp/sae-interp/trained_sae.pt'
+    
+    if not os.path.exists(sae_path):
+        print(f"Warning: SAE model not found at {sae_path}")
+        return None
+    
+    try:
+        # Load SAE model
+        sae_data = torch.load(sae_path, map_location='cpu')
+        W_dec = sae_data['model_state_dict']['W_dec']  # Shape: [1536, 192]
+        W_enc = sae_data['model_state_dict']['W_enc']  # Shape: [192, 1536]
+        
+        # For each LoRA feature, process both encoder and decoder contributions
+        sae_info = {}
+        
+        # Map indices to layer/projection names
+        feature_names = []
+        for layer_idx in range(64):
+            for proj in ['gate_proj', 'up_proj', 'down_proj']:
+                feature_names.append(f'layer_{layer_idx}_{proj}')
+        
+        for lora_idx in range(192):
+            # Process decoder weights (how SAE features contribute to reconstructing this LoRA feature)
+            decoder_weights = W_dec[:, lora_idx]
+            decoder_total_magnitude = torch.sum(torch.abs(decoder_weights))
+            
+            # Process encoder weights (how this LoRA feature activates SAE features)
+            encoder_weights = W_enc[lora_idx, :]  # Row lora_idx
+            encoder_total_magnitude = torch.sum(torch.abs(encoder_weights))
+            
+            # Process decoder - positive and negative
+            decoder_positive_mask = decoder_weights > 0
+            decoder_negative_mask = decoder_weights < 0
+            
+            # Decoder positive features
+            decoder_positive_weights = decoder_weights[decoder_positive_mask]
+            decoder_positive_indices = torch.where(decoder_positive_mask)[0]
+            if len(decoder_positive_weights) > 0:
+                top_k = min(10, len(decoder_positive_weights))
+                top_positive_values, top_positive_idx = torch.topk(decoder_positive_weights, k=top_k)
+                decoder_positive_features = []
+                for i in range(top_k):
+                    idx = decoder_positive_indices[top_positive_idx[i]]
+                    weight = decoder_positive_weights[top_positive_idx[i]]
+                    relative_weight = float(weight / decoder_total_magnitude)
+                    decoder_positive_features.append({
+                        'sae_feature': int(idx),
+                        'weight': float(weight),
+                        'relative_weight': relative_weight
+                    })
+            else:
+                decoder_positive_features = []
+            
+            # Decoder negative features
+            decoder_negative_weights = decoder_weights[decoder_negative_mask]
+            decoder_negative_indices = torch.where(decoder_negative_mask)[0]
+            if len(decoder_negative_weights) > 0:
+                top_k = min(10, len(decoder_negative_weights))
+                top_negative_values, top_negative_idx = torch.topk(-decoder_negative_weights, k=top_k)
+                decoder_negative_features = []
+                for i in range(top_k):
+                    idx = decoder_negative_indices[top_negative_idx[i]]
+                    weight = decoder_negative_weights[top_negative_idx[i]]
+                    relative_weight = float(torch.abs(weight) / decoder_total_magnitude)
+                    decoder_negative_features.append({
+                        'sae_feature': int(idx),
+                        'weight': float(weight),
+                        'relative_weight': relative_weight
+                    })
+            else:
+                decoder_negative_features = []
+                
+            # Process encoder - positive and negative
+            encoder_positive_mask = encoder_weights > 0
+            encoder_negative_mask = encoder_weights < 0
+            
+            # Encoder positive features
+            encoder_positive_weights = encoder_weights[encoder_positive_mask]
+            encoder_positive_indices = torch.where(encoder_positive_mask)[0]
+            if len(encoder_positive_weights) > 0:
+                top_k = min(10, len(encoder_positive_weights))
+                top_positive_values, top_positive_idx = torch.topk(encoder_positive_weights, k=top_k)
+                encoder_positive_features = []
+                for i in range(top_k):
+                    idx = encoder_positive_indices[top_positive_idx[i]]
+                    weight = encoder_positive_weights[top_positive_idx[i]]
+                    relative_weight = float(weight / encoder_total_magnitude)
+                    encoder_positive_features.append({
+                        'sae_feature': int(idx),
+                        'weight': float(weight),
+                        'relative_weight': relative_weight
+                    })
+            else:
+                encoder_positive_features = []
+            
+            # Encoder negative features
+            encoder_negative_weights = encoder_weights[encoder_negative_mask]
+            encoder_negative_indices = torch.where(encoder_negative_mask)[0]
+            if len(encoder_negative_weights) > 0:
+                top_k = min(10, len(encoder_negative_weights))
+                top_negative_values, top_negative_idx = torch.topk(-encoder_negative_weights, k=top_k)
+                encoder_negative_features = []
+                for i in range(top_k):
+                    idx = encoder_negative_indices[top_negative_idx[i]]
+                    weight = encoder_negative_weights[top_negative_idx[i]]
+                    relative_weight = float(torch.abs(weight) / encoder_total_magnitude)
+                    encoder_negative_features.append({
+                        'sae_feature': int(idx),
+                        'weight': float(weight),
+                        'relative_weight': relative_weight
+                    })
+            else:
+                encoder_negative_features = []
+            
+            # Map to feature name
+            feature_name = feature_names[lora_idx]
+            sae_info[feature_name] = {
+                'decoder': {
+                    'positive': decoder_positive_features,
+                    'negative': decoder_negative_features
+                },
+                'encoder': {
+                    'positive': encoder_positive_features,
+                    'negative': encoder_negative_features
+                }
+            }
+        
+        return sae_info
+        
+    except Exception as e:
+        print(f"Error loading SAE decoder: {e}")
+        return None
 
 
 def generate_token_html(tokens, activations, target_idx, context_window=10):
@@ -52,6 +190,10 @@ def generate_dashboard_html(data_path, output_path):
     
     metadata = data['metadata']
     layers = data['layers']
+    
+    # Load SAE decoder info
+    print("Loading SAE decoder information...")
+    sae_info = load_sae_decoder_info()
     
     # Build list of all features
     all_features = []
@@ -222,6 +364,114 @@ def generate_dashboard_html(data_path, output_path):
             border-radius: 6px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 15px;
+        }}
+        
+        /* SAE Features section */
+        .sae-features-section {{
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            display: none; /* Hidden until a feature is loaded */
+        }}
+        
+        .sae-features-header {{
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }}
+        
+        .sae-features-header:hover {{
+            background-color: #f0f0f0;
+        }}
+        
+        .sae-features-title {{
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #2c3e50;
+        }}
+        
+        .dropdown-arrow {{
+            font-size: 0.8em;
+            transition: transform 0.2s;
+        }}
+        
+        .dropdown-arrow.collapsed {{
+            transform: rotate(-90deg);
+        }}
+        
+        .sae-features-content {{
+            margin-top: 15px;
+            display: flex;
+            gap: 20px;
+        }}
+        
+        .sae-features-content.collapsed {{
+            display: none;
+        }}
+        
+        .sae-column {{
+            flex: 1;
+            background: #f8f8f8;
+            border-radius: 6px;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }}
+        
+        .sae-column-title {{
+            font-weight: bold;
+            color: #555;
+            font-size: 0.85em;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+        }}
+        
+        .sae-feature-item {{
+            display: flex;
+            align-items: center;
+            padding: 6px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.85em;
+            background: white;
+            margin-bottom: 4px;
+            border-radius: 4px;
+        }}
+        
+        .sae-feature-item:last-child {{
+            margin-bottom: 0;
+        }}
+        
+        .sae-feature-index {{
+            font-weight: bold;
+            color: #3498db;
+            min-width: 60px;
+        }}
+        
+        .sae-feature-weight {{
+            margin-left: auto;
+            font-family: 'Monaco', 'Consolas', monospace;
+            padding: 2px 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }}
+        
+        .sae-feature-weight.positive {{
+            background: rgba(255, 0, 0, 0.1);
+            color: #d00;
+        }}
+        
+        .sae-feature-weight.negative {{
+            background: rgba(0, 0, 255, 0.1);
+            color: #00d;
         }}
         
         .progress-title {{
@@ -748,6 +998,17 @@ def generate_dashboard_html(data_path, output_path):
                     </div>
                 </div>
                 
+                <!-- SAE Features Section -->
+                <div class="sae-features-section" id="sae-features-section">
+                    <div class="sae-features-header" onclick="toggleSAEDropdown()">
+                        <div class="sae-features-title">Top 10 SAE Features</div>
+                        <div class="dropdown-arrow" id="sae-dropdown-arrow">▼</div>
+                    </div>
+                    <div class="sae-features-content" id="sae-features-content">
+                        <!-- SAE features will be populated here -->
+                    </div>
+                </div>
+                
                 <!-- Feature Display -->
                 <div id="feature-container">
                     <div class="no-feature-message">Select a feature from the controls above to begin analysis</div>
@@ -820,6 +1081,7 @@ def generate_dashboard_html(data_path, output_path):
         // Store all features and current state
         const allFeatures = {json.dumps(all_features)};
         const totalFeatures = {total_features};
+        const saeInfo = {json.dumps(sae_info) if sae_info else 'null'};
         let currentFeature = null;
         let interpretations = {{}};
         let contextCache = {{}}; // Cache loaded contexts
@@ -968,6 +1230,99 @@ def generate_dashboard_html(data_path, output_path):
             }} else {{
                 document.getElementById('interpretation-text-mini').value = '';
                 document.getElementById('star-checkbox-mini').checked = false;
+            }}
+            
+            // Display SAE features if available
+            displaySAEFeatures(feature);
+        }}
+        
+        function displaySAEFeatures(feature) {{
+            if (!saeInfo) {{
+                // Hide SAE section if no info available
+                document.getElementById('sae-features-section').style.display = 'none';
+                return;
+            }}
+            
+            // Build feature key without polarity suffix
+            const baseKey = `layer_${{feature.layer}}_${{feature.projection}}`;
+            const saeData = saeInfo[baseKey];
+            
+            if (!saeData) {{
+                document.getElementById('sae-features-section').style.display = 'none';
+                return;
+            }}
+            
+            // Select encoder and decoder features based on polarity
+            const encoderFeatures = feature.polarity === 'positive' ? saeData.encoder.positive : saeData.encoder.negative;
+            const decoderFeatures = feature.polarity === 'positive' ? saeData.decoder.positive : saeData.decoder.negative;
+            
+            if ((!encoderFeatures || encoderFeatures.length === 0) && (!decoderFeatures || decoderFeatures.length === 0)) {{
+                document.getElementById('sae-features-section').style.display = 'none';
+                return;
+            }}
+            
+            // Show the SAE section
+            document.getElementById('sae-features-section').style.display = 'block';
+            
+            // Update title to indicate polarity
+            const titleElement = document.querySelector('.sae-features-title');
+            if (titleElement) {{
+                titleElement.textContent = `SAE Features (${{feature.polarity}} contributions)`;
+            }}
+            
+            // Build HTML for encoder column
+            let encoderHtml = '<div class="sae-column-title">Encoder (LoRA → SAE)</div>';
+            if (encoderFeatures && encoderFeatures.length > 0) {{
+                encoderFeatures.forEach((saeFeature, idx) => {{
+                    const weightClass = feature.polarity;
+                    const relativeWeightStr = (saeFeature.relative_weight * 100).toFixed(2) + '%';
+                    encoderHtml += `
+                        <div class="sae-feature-item">
+                            <span class="sae-feature-index">SAE-${{saeFeature.sae_feature}}</span>
+                            <span class="sae-feature-weight ${{weightClass}}">${{relativeWeightStr}}</span>
+                        </div>
+                    `;
+                }});
+            }} else {{
+                encoderHtml += '<div style="color: #999; text-align: center; padding: 10px;">No features</div>';
+            }}
+            
+            // Build HTML for decoder column
+            let decoderHtml = '<div class="sae-column-title">Decoder (SAE → LoRA)</div>';
+            if (decoderFeatures && decoderFeatures.length > 0) {{
+                decoderFeatures.forEach((saeFeature, idx) => {{
+                    const weightClass = feature.polarity;
+                    const relativeWeightStr = (saeFeature.relative_weight * 100).toFixed(2) + '%';
+                    decoderHtml += `
+                        <div class="sae-feature-item">
+                            <span class="sae-feature-index">SAE-${{saeFeature.sae_feature}}</span>
+                            <span class="sae-feature-weight ${{weightClass}}">${{relativeWeightStr}}</span>
+                        </div>
+                    `;
+                }});
+            }} else {{
+                decoderHtml += '<div style="color: #999; text-align: center; padding: 10px;">No features</div>';
+            }}
+            
+            // Combine both columns
+            const html = `
+                <div class="sae-column">${{encoderHtml}}</div>
+                <div class="sae-column">${{decoderHtml}}</div>
+            `;
+            
+            document.getElementById('sae-features-content').innerHTML = html;
+        }}
+        
+        function toggleSAEDropdown() {{
+            const content = document.getElementById('sae-features-content');
+            const arrow = document.getElementById('sae-dropdown-arrow');
+            
+            if (content.classList.contains('collapsed')) {{
+                content.classList.remove('collapsed');
+                arrow.classList.remove('collapsed');
+            }} else {{
+                content.classList.add('collapsed');
+                arrow.classList.add('collapsed');
             }}
         }}
         
